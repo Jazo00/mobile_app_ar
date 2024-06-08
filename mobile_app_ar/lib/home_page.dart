@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login_and_signup_page.dart'; // Import your login and signup page file
 
 class HomePage extends StatefulWidget {
   @override
@@ -41,7 +42,11 @@ class _HomePageState extends State<HomePage> {
               child: Text('Login'),
               onPressed: () {
                 Navigator.of(context).pop();
-                // Navigate to login screen
+                // Navigate to login_and_signup_page.dart
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginAndSignupPage()), // Navigate to your login and signup page
+                );
               },
             ),
             TextButton(
@@ -116,14 +121,12 @@ class _HomePageState extends State<HomePage> {
           ElevatedButton(
             onPressed: () {
               // Navigate to actual login screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginAndSignupPage()), // Navigate to your login and signup page
+              );
             },
             child: Text('Login'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to create account screen
-            },
-            child: Text('Create Account'),
           ),
         ],
       ),
