@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -78,6 +80,19 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response.error!.message)),
+      );
+    }
+  }
+
+  Future<void> _forgotPassword() async {
+    final response = await _supabaseClient.auth.api.resetPasswordForEmail(_emailController.text);
+    if (response.error == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Password reset email sent')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send password reset email')),
       );
     }
   }
@@ -304,6 +319,11 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 onPressed: toggleFormType,
                 child: Text(isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'),
               ),
+              if (isLogin)
+                TextButton(
+                  onPressed: _forgotPassword,
+                  child: const Text('Forgot Password?'),
+                )
             ],
           ),
         ),
