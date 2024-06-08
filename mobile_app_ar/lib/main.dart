@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'home_page.dart';
+import 'login_and_signup_page.dart'; // Add this import
 
 void main() {
   runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -25,22 +25,23 @@ class MainApp extends StatelessWidget {
         '/account': (context) => AccountPage(),
         '/login': (context) => LoginPage(),
         '/signup': (context) => SignupPage(),
+        '/login_signup': (context) => LoginAndSignupPage(), // Add this route
       },
     );
   }
 }
 
-class StartupScreen extends StatefulWidget{
-  @override 
+class StartupScreen extends StatefulWidget {
+  @override
   _StartupScreenState createState() => _StartupScreenState();
 }
 
-class _StartupScreenState extends State<StartupScreen> with TickerProviderStateMixin{
+class _StartupScreenState extends State<StartupScreen> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late ColorTween _backgroundColorTween;
 
-  @override 
+  @override
   void initState() {
     super.initState();
 
@@ -62,7 +63,7 @@ class _StartupScreenState extends State<StartupScreen> with TickerProviderStateM
     _controller.forward();
   }
 
-  @override  
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -86,7 +87,7 @@ class _StartupScreenState extends State<StartupScreen> with TickerProviderStateM
                   children: <Widget>[
                     FadeTransition(
                       opacity: _fadeAnimation,
-                      child: Image.asset('lib/assets/logo_final.png'), 
+                      child: Image.asset('lib/assets/Agri-lenz.png'), 
                     ),
                     const SizedBox(height: 5),
                     FadeTransition(
@@ -102,7 +103,7 @@ class _StartupScreenState extends State<StartupScreen> with TickerProviderStateM
                         ),
                       ),
                     ),
-                    const SizedBox(height: 5), 
+                    const SizedBox(height: 5),
                     FadeTransition(
                       opacity: _fadeAnimation,
                       child: Text(
@@ -121,7 +122,7 @@ class _StartupScreenState extends State<StartupScreen> with TickerProviderStateM
                       opacity: _fadeAnimation,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                          textStyle: WidgetStateProperty.all(
+                          textStyle: MaterialStateProperty.all(
                             GoogleFonts.cardo(
                               textStyle: const TextStyle(fontSize: 16),
                             ),
@@ -197,7 +198,7 @@ class AccountPage extends StatelessWidget {
         title: Text('Account Page'),
       ),
       body: Center(
-        child: Text('Account Page - Implement Accouont content here'),
+        child: Text('Account Page - Implement Account content here'),
       ),
     );
   }
