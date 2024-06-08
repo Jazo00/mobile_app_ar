@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginAndSignupPage extends StatefulWidget {
@@ -39,7 +40,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
           'last_name': _lastNameController.text,
           'middle_initial': _middleInitialController.text,
           'email': _emailController.text,
-          'cell_number': _cellNumberController.text,
+          'cell_number': '+63' + _cellNumberController.text,
           'age': int.parse(_ageController.text),
           'sex': _selectedSex,
         });
@@ -71,6 +72,23 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
     }
   }
 
+  InputDecoration _inputDecoration(String labelText, {Widget? prefixIcon}) {
+    return InputDecoration(
+      labelText: labelText,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: BorderSide(color: Colors.green),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      prefixIcon: prefixIcon,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +105,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
               if (!isLogin) ...[
                 TextFormField(
                   controller: _firstNameController,
-                  decoration: InputDecoration(labelText: 'First Name'),
+                  decoration: _inputDecoration('First Name'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your first name';
@@ -98,7 +116,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lastNameController,
-                  decoration: InputDecoration(labelText: 'Last Name'),
+                  decoration: _inputDecoration('Last Name'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your last name';
@@ -109,10 +127,21 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _middleInitialController,
-                  decoration: const InputDecoration(
-                    labelText: 'Middle Initial', 
+                  decoration: InputDecoration(
+                    labelText: 'Middle Initial',
                     counterText: '',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: Colors.green),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                  ),
                   maxLength: 1,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z]')),
@@ -127,10 +156,37 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _cellNumberController,
-                  decoration: const InputDecoration(labelText: 'Cell Number'),
+                  keyboardType: TextInputType.number,
+                  decoration: _inputDecoration(
+                    'Cell Number',
+                    prefixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: SvgPicture.asset(
+                            'lib/assets/Ph_flag.svg',
+                            width: 24,
+                            height: 24,
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(right: 8.0),
+                          child: Text(
+                            '+63',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  maxLength: 10,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
                   validator: (value) {
-                    if (value == null || !RegExp(r'^\+63\d{10}$').hasMatch(value)) {
-                      return 'Please enter a valid cell number (e.g., +639123456789)';
+                  if (value == null || value.length != 10) {
+                    return 'Please enter a valid cell number (10 digits)';
                     }
                     return null;
                   },
@@ -138,11 +194,11 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _ageController,
-                  decoration: InputDecoration(labelText: 'Age'),
+                  decoration: _inputDecoration('Age'),
                   keyboardType: TextInputType.number,
                   validator: (value) {
-                    if (value == null || !RegExp(r'^\d{2}$').hasMatch(value)) {
-                      return 'Please enter a valid age (2 digits)';
+                    if (value == null || !RegExp(r'^\d{1,2}$').hasMatch(value)) {
+                      return 'Please enter age';
                     }
                     return null;
                   },
@@ -150,7 +206,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: _selectedSex,
-                  decoration: InputDecoration(labelText: 'Sex'),
+                  decoration: _inputDecoration('Sex'),
                   items: ['Male', 'Female'].map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
@@ -167,7 +223,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
               ],
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: _inputDecoration('Email'),
                 validator: (value) {
                   if (value == null || !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                     return 'Please enter a valid email';
@@ -178,11 +234,11 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
+                decoration: _inputDecoration('Password'),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || !RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$').hasMatch(value)) {
-                    return 'Password must be at least 8 characters long, include an uppercase letter, a number, and a special character';
+                    return 'Password must be at least 8 characters long, include an \n uppercase letter, a number, and a special character';
                   }
                   return null;
                 },
