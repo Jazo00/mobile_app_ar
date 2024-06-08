@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  supabase: ^0.2.3
+  supabase_flutter: ^0.2.3
   google_fonts: ^4.0.3
 
 dev_dependencies:

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'home_page.dart';
-import 'login_and_signup_page.dart'; // Updated import
+import 'login_and_signup_page.dart'; 
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: 'https://fbofelxkabyqngzbtuuo.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZib2ZlbHhrYWJ5cW5nemJ0dXVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTc3NjE0OTgsImV4cCI6MjAzMzMzNzQ5OH0.rexRkyI9f2-wOrqLkTx-tRU1ObpE_CKDOIWtW2hPRk8',
+  );
   runApp(MainApp());
 }
 
@@ -23,10 +29,7 @@ class MainApp extends StatelessWidget {
         '/marketplace': (context) => MarketplacePage(),
         '/livestock': (context) => LivestockManagementPage(),
         '/account': (context) => AccountPage(),
-        // Remove the routes for LoginPage and SignupPage
-        // '/login': (context) => LoginPage(),
-        // '/signup': (context) => SignupPage(),
-        '/login_signup': (context) => LoginAndSignupPage(), // Update to LoginAndSignupPage
+        '/login_signup': (context) => LoginAndSignupPage(), 
       },
     );
   }
@@ -88,7 +91,7 @@ class _StartupScreenState extends State<StartupScreen> with TickerProviderStateM
                   children: <Widget>[
                     FadeTransition(
                       opacity: _fadeAnimation,
-                      child: Image.asset('lib/assets/logo_final.png'),
+                      child: Image.asset('lib/assets/logo_final.png'), 
                     ),
                     const SizedBox(height: 5),
                     FadeTransition(
@@ -123,7 +126,7 @@ class _StartupScreenState extends State<StartupScreen> with TickerProviderStateM
                       opacity: _fadeAnimation,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                          textStyle: MaterialStateProperty.all(
+                          textStyle: WidgetStateProperty.all(
                             GoogleFonts.cardo(
                               textStyle: const TextStyle(fontSize: 16),
                             ),
@@ -200,6 +203,34 @@ class AccountPage extends StatelessWidget {
       ),
       body: Center(
         child: Text('Account Page - Implement Account content here'),
+      ),
+    );
+  }
+}
+
+class LoginPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Login Page'),
+      ),
+      body: Center(
+        child: Text('Login Page - Implement Login content here'),
+      ),
+    );
+  }
+}
+
+class SignupPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Signup Page'),
+      ),
+      body: Center(
+        child: Text('Signup Page - Implement sign up content here'),
       ),
     );
   }
