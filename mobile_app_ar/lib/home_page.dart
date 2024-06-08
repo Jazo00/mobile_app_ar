@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   String livestockId = 'abcde'; // Example livestock ID
 
   static const List<String> _titles = <String>[
-    'Home',
+    'Welcome to Agri-Lenz',
     'Livestock Information',
     'Marketplace',
     'Post Listing',
@@ -101,7 +101,15 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_selectedIndex]),
+        automaticallyImplyLeading: false,
+        title: Center(
+        child: Text(
+          _titles[_selectedIndex],
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ),
       body: _isLoggedIn || _selectedIndex == 0 || _selectedIndex == 1
           ? _getPage(_selectedIndex)
@@ -171,28 +179,39 @@ class HomePageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
+    child: Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 5),
           const Text(
-            'Welcome to Agri-Lenz',
+            'What is Augmented Reality?',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
+          const Text('Augmented Reality (AR) is an interactive experience where digital information is overlaid onto the real world. AR can be experienced through various devices, including smartphones, tablets, and AR glasses.',
+            style: TextStyle(fontSize: 16)
+          ),
+          const SizedBox(height: 20),
           const Text(
-            'Our system provides valuable insights to augment agriculture. Our purpose is to assist farmers and agricultural businesses with data-driven solutions.',
-            style: TextStyle(fontSize: 16),
+            'About Our System',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          const Text('The AR capability enhances user experience by overlaying digital information on the real world, providing informative content about livestock in an interactive and engaging way. This feature could include information about livestock breeds, care, feeding, and other relevant topics. Additionally, the information system serves as a platform for informative content delivery, providing users with valuable knowledge about livestock farming practices and management. Our system combines augmented reality (AR) technology with an information system for livestock education and a marketplace for listing livestock for sale. Users can view livestock information in AR, access informative resources about livestock, and list livestock for sale. Transactions are not handled by the system; users manage transactions independently, and the system allows them to mark livestock as available for sale.',
+            style: TextStyle(fontSize: 16)
           ),
           const SizedBox(height: 24),
           Center(
             child: ElevatedButton(
               onPressed: onViewMarketplace,
               child: const Text('View Marketplace'),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
