@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'home_page.dart';
-import 'login_and_signup_page.dart'; 
+import 'login_and_signup_page.dart'; // Add this import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +29,9 @@ class MainApp extends StatelessWidget {
         '/marketplace': (context) => MarketplacePage(),
         '/livestock': (context) => LivestockManagementPage(),
         '/account': (context) => AccountPage(),
-        '/login_signup': (context) => LoginAndSignupPage(), 
+        '/login': (context) => LoginPage(),
+        '/signup': (context) => SignupPage(),
+        '/login_signup': (context) => LoginAndSignupPage(), // Add this route
       },
     );
   }
@@ -208,4 +210,30 @@ class AccountPage extends StatelessWidget {
   }
 }
 
+class LoginPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Login Page'),
+      ),
+      body: Center(
+        child: Text('Login Page - Implement Login content here'),
+      ),
+    );
+  }
+}
 
+class SignupPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Signup Page'),
+      ),
+      body: Center(
+        child: Text('Signup Page - Implement sign up content here'),
+      ),
+    );
+  }
+}
