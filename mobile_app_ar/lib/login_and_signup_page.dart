@@ -10,6 +10,8 @@ class LoginAndSignupPage extends StatefulWidget {
 
 class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
   bool isLogin = true;
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
   final _formKey = GlobalKey<FormState>();
   final SupabaseClient _supabaseClient = Supabase.instance.client;
 
@@ -20,6 +22,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
   final TextEditingController _cellNumberController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   String _selectedSex = 'Male';
 
   void toggleFormType() {
@@ -35,24 +38,31 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         _passwordController.text,
       );
       if (response.error == null) {
-        await _supabaseClient.from('profiles').insert({
+        final insertResponse = await _supabaseClient.from('profiles').insert({
           'first_name': _firstNameController.text,
           'last_name': _lastNameController.text,
           'middle_initial': _middleInitialController.text,
           'email': _emailController.text,
-          'cell_number': '+63' + _cellNumberController.text,
+          'cell_number': '+63${_cellNumberController.text}',
           'age': int.parse(_ageController.text),
           'sex': _selectedSex,
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sign-up successful! Please log in')),
-        );
-        setState(() {
-          isLogin = true;
-        });
+        }).execute();
+
+        if (insertResponse.error == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Sign-up successful! Please log in')),
+          );
+          setState(() {
+            isLogin = true;
+          });
+       } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save profile data: ${insertResponse.error!.message}')),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.error!.message)),
+          SnackBar(content: Text('Sign-up failed: ${response.error!.message}')),
         );
       }
     }
@@ -72,7 +82,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
     }
   }
 
-  InputDecoration _inputDecoration(String labelText, {Widget? prefixIcon}) {
+  InputDecoration _inputDecoration(String labelText, {Widget? prefixIcon, Widget? suffixIcon}) {
     return InputDecoration(
       labelText: labelText,
       border: OutlineInputBorder(
@@ -87,6 +97,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         borderSide: BorderSide(color: Colors.grey),
       ),
       prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
     );
   }
 
@@ -186,7 +197,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   ],
                   validator: (value) {
                   if (value == null || value.length != 10) {
-                    return 'Please enter a valid cell number (10 digits)';
+                    return 'Please enter a valid cell number (Philippine number only)';
                     }
                     return null;
                   },
@@ -196,9 +207,12 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   controller: _ageController,
                   decoration: _inputDecoration('Age'),
                   keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d{1,2}$')),
+                  ],
                   validator: (value) {
-                    if (value == null || !RegExp(r'^\d{1,2}$').hasMatch(value)) {
-                      return 'Please enter age';
+                    if (value == null || value.isEmpty || int.tryParse(value) == null) {
+                      return 'Please enter a valid age';
                     }
                     return null;
                   },
@@ -234,8 +248,20 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _passwordController,
-                decoration: _inputDecoration('Password'),
-                obscureText: true,
+                decoration: _inputDecoration(
+                  'Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
+                  ),
+                ),
+                obscureText: !_passwordVisible,
                 validator: (value) {
                   if (value == null || !RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$').hasMatch(value)) {
                     return 'Password must be at least 8 characters long, include an \n uppercase letter, a number, and a special character';
@@ -243,21 +269,40 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
-              Center(
-                child: ElevatedButton(
+              const SizedBox(height: 16),
+              if (!isLogin) ...[
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  decoration: _inputDecoration(
+                    'Confirm Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _confirmPasswordVisible = !_confirmPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                  obscureText: !_confirmPasswordVisible,
+                  validator: (value) {
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+              ElevatedButton(
                   onPressed: isLogin ? _login : _signUp,
                   child: Text(isLogin ? 'Login' : 'Sign Up'),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Center(
-                child: TextButton(
-                  onPressed: toggleFormType,
-                  child: Text(
-                    isLogin ? 'Don\'t have an account? Sign Up' : 'Already have an account? Login',
-                  ),
-                ),
+              TextButton(
+                onPressed: toggleFormType,
+                child: Text(isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'),
               ),
             ],
           ),

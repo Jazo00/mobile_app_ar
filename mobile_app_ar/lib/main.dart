@@ -25,10 +25,6 @@ class MainApp extends StatelessWidget {
       routes: {
         '/': (context) => StartupScreen(),
         '/home': (context) => HomePage(),
-        '/infosys': (context) => InformationSystemPage(),
-        '/marketplace': (context) => MarketplacePage(),
-        '/livestock': (context) => LivestockManagementPage(),
-        '/account': (context) => AccountPage(),
         '/login_signup': (context) => LoginAndSignupPage(), 
       },
     );
@@ -147,90 +143,6 @@ class _StartupScreenState extends State<StartupScreen> with TickerProviderStateM
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class InformationSystemPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Information System'),
-      ),
-      body: Center(
-        child: Text('Information System Page - Implement information system content here'),
-      ),
-    );
-  }
-}
-
-class MarketplacePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Marketplace'),
-      ),
-      body: Center(
-        child: Text('Marketplace Page - Implement marketplace content here'),
-      ),
-    );
-  }
-}
-
-class LivestockManagementPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Livestock Management'),
-      ),
-      body: Center(
-        child: Text('Livestock Management Page - Implement Livestock Management content here'),
-      ),
-    );
-  }
-}
-
-class AccountPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Account Page'),
-      ),
-      body: Center(
-        child: Text('Account Page - Implement Account content here'),
-      ),
-    );
-  }
-}
-
-class LoginPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Login Page'),
-      ),
-      body: Center(
-        child: Text('Login Page - Implement Login content here'),
-      ),
-    );
-  }
-}
-
-class SignupPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Signup Page'),
-      ),
-      body: Center(
-        child: Text('Signup Page - Implement sign up content here'),
       ),
     );
   }

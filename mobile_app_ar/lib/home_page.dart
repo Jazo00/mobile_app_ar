@@ -1,11 +1,10 @@
-// File: home_page.dart
-
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Add this import
 import 'livestock_info.dart'; // Import your livestock_info.dart file
 import 'marketplace.dart'; // Import your marketplace.dart file
 import 'user_profile_page.dart'; // Import your user_profile_page.dart file
 import 'login_and_signup_page.dart'; // Import your login and signup page file
-import 'post_listing_page.dart'; // Import your post_listing_page.dart file
+import 'post_listing_page.dart'; // Import your post_listing page file
 
 class HomePage extends StatefulWidget {
   @override
@@ -25,6 +24,19 @@ class _HomePageState extends State<HomePage> {
     'Post Listing',
     'Account'
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    });
+  }
 
   void _onItemTapped(int index) {
     if ((index == 2 || index == 3 || index == 4) && !_isLoggedIn) {
@@ -51,7 +63,9 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => LoginAndSignupPage()),
-                );
+                ).then((value) {
+                  _checkLoginStatus(); // Re-check login status after returning from login page
+                });
               },
             ),
             TextButton(
@@ -138,7 +152,9 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => LoginAndSignupPage()),
-              );
+              ).then((value) {
+                _checkLoginStatus(); // Re-check login status after returning from login page
+              });
             },
             child: Text('Login'),
           ),
