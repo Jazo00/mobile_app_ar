@@ -5,6 +5,7 @@ import 'livestock_info.dart'; // Import your livestock_info.dart file
 import 'marketplace.dart'; // Import your marketplace.dart file
 import 'user_profile_page.dart'; // Import your user_profile_page.dart file
 import 'login_and_signup_page.dart'; // Import your login and signup page file
+import 'post_listing_page.dart'; // Import your post_listing_page.dart file
 
 class HomePage extends StatefulWidget {
   @override
@@ -21,11 +22,12 @@ class _HomePageState extends State<HomePage> {
     'Home',
     'Livestock Information',
     'Marketplace',
+    'Post Listing',
     'Account'
   ];
 
   void _onItemTapped(int index) {
-    if ((index == 2 || index == 3) && !_isLoggedIn) {
+    if ((index == 2 || index == 3 || index == 4) && !_isLoggedIn) {
       _showLoginPrompt();
     } else {
       setState(() {
@@ -73,6 +75,8 @@ class _HomePageState extends State<HomePage> {
       case 2:
         return MarketplacePage();
       case 3:
+        return PostListingPage();
+      case 4:
         return UserProfilePage(userId: userId);
       default:
         return HomePageContent(onViewMarketplace: () => _onItemTapped(2));
@@ -101,6 +105,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
             label: 'Marketplace',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.post_add),
+            label: 'Post Listing',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
