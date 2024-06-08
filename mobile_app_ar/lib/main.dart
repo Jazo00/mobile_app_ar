@@ -86,7 +86,7 @@ class _StartupScreenState extends State<StartupScreen> with TickerProviderStateM
                   children: <Widget>[
                     FadeTransition(
                       opacity: _fadeAnimation,
-                      child: Image.asset('lib/assets/Agri-lenz.png'), 
+                      child: Image.asset('lib/assets/logo_final.png'), 
                     ),
                     const SizedBox(height: 5),
                     FadeTransition(
