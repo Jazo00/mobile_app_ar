@@ -1,4 +1,9 @@
+// File: home_page.dart
+
 import 'package:flutter/material.dart';
+import 'livestock_info.dart'; // Import your livestock_info.dart file
+import 'marketplace.dart'; // Import your marketplace.dart file
+import 'user_profile_page.dart'; // Import your user_profile_page.dart file
 import 'login_and_signup_page.dart'; // Import your login and signup page file
 
 class HomePage extends StatefulWidget {
@@ -9,6 +14,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   bool _isLoggedIn = false;
+  String userId = '12345'; // Example user ID
+  String livestockId = 'abcde'; // Example livestock ID
 
   static const List<String> _titles = <String>[
     'Home',
@@ -18,16 +25,13 @@ class _HomePageState extends State<HomePage> {
   ];
 
   void _onItemTapped(int index) {
-    if (index == 2 || index == 3) {
-      // Marketplace and Account require login
-      if (!_isLoggedIn) {
-        _showLoginPrompt();
-        return;
-      }
+    if ((index == 2 || index == 3) && !_isLoggedIn) {
+      _showLoginPrompt();
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
     }
-    setState(() {
-      _selectedIndex = index;
-    });
   }
 
   void _showLoginPrompt() {
@@ -42,10 +46,9 @@ class _HomePageState extends State<HomePage> {
               child: Text('Login'),
               onPressed: () {
                 Navigator.of(context).pop();
-                // Navigate to login_and_signup_page.dart
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginAndSignupPage()), // Navigate to your login and signup page
+                  MaterialPageRoute(builder: (context) => LoginAndSignupPage()),
                 );
               },
             ),
@@ -61,140 +64,30 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHomeContent() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Welcome to Agri-Lenz',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Our system provides valuable insights to augment agriculture. Our purpose is to assist farmers and agricultural businesses with data-driven solutions.',
-            style: TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 24),
-          Center(
-            child: ElevatedButton(
-              onPressed: () => _onItemTapped(2),
-              child: const Text('View Marketplace'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLivestockInformation() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Livestock Information',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'We provide detailed information about various livestock. Currently, we have information about chickens, including their care, feeding, and health management.',
-            style: TextStyle(fontSize: 16),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoginScreen() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Login to Continue',
-            style: TextStyle(fontSize: 24),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to actual login screen
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LoginAndSignupPage()), // Navigate to your login and signup page
-              );
-            },
-            child: Text('Login'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMarketplace() {
-    return Center(
-      child: Text(
-        'Marketplace',
-        style: TextStyle(fontSize: 24),
-      ),
-    );
-  }
-
-  Widget _buildAccountDetails() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            'Account Details',
-            style: TextStyle(fontSize: 24),
-          ),
-          SizedBox(height: 20),
-          Text(
-            'User: John Doe',
-            style: TextStyle(fontSize: 18),
-          ),
-          Text(
-            'Email: johndoe@example.com',
-            style: TextStyle(fontSize: 18),
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Handle logout
-              setState(() {
-                _isLoggedIn = false;
-                _selectedIndex = 0;
-              });
-            },
-            child: Text('Logout'),
-          ),
-        ],
-      ),
-    );
+  Widget _getPage(int index) {
+    switch (index) {
+      case 0:
+        return HomePageContent(onViewMarketplace: () => _onItemTapped(2));
+      case 1:
+        return LivestockInfoPage(livestockId: livestockId);
+      case 2:
+        return MarketplacePage();
+      case 3:
+        return UserProfilePage(userId: userId);
+      default:
+        return HomePageContent(onViewMarketplace: () => _onItemTapped(2));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _widgetOptions = <Widget>[
-      _buildHomeContent(),
-      _buildLivestockInformation(),
-      _isLoggedIn ? _buildMarketplace() : _buildLoginScreen(),
-      _isLoggedIn ? _buildAccountDetails() : _buildLoginScreen(),
-    ];
-
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_selectedIndex]),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Center(
-          child: _widgetOptions.elementAt(_selectedIndex),
-        ),
-      ),
+      body: _isLoggedIn || _selectedIndex == 0 || _selectedIndex == 1
+          ? _getPage(_selectedIndex)
+          : _buildLoginScreen(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -218,6 +111,64 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildLoginScreen() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Login to Continue',
+            style: TextStyle(fontSize: 24),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginAndSignupPage()),
+              );
+            },
+            child: Text('Login'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class HomePageContent extends StatelessWidget {
+  final VoidCallback onViewMarketplace;
+
+  HomePageContent({required this.onViewMarketplace});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Welcome to Agri-Lenz',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Our system provides valuable insights to augment agriculture. Our purpose is to assist farmers and agricultural businesses with data-driven solutions.',
+            style: TextStyle(fontSize: 16),
+          ),
+          const SizedBox(height: 24),
+          Center(
+            child: ElevatedButton(
+              onPressed: onViewMarketplace,
+              child: const Text('View Marketplace'),
+            ),
+          ),
+        ],
       ),
     );
   }
