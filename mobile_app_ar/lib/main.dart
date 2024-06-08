@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'home_page.dart';
-import 'login_and_signup_page.dart'; // Add this import
+import 'login_and_signup_page.dart';
 
 void main() {
   runApp(MainApp());
@@ -25,7 +25,7 @@ class MainApp extends StatelessWidget {
         '/account': (context) => AccountPage(),
         '/login': (context) => LoginPage(),
         '/signup': (context) => SignupPage(),
-        '/login_signup': (context) => LoginAndSignupPage(), // Add this route
+        '/login_signup': (context) => LoginAndSignupPage(),
       },
     );
   }
