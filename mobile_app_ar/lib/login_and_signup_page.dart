@@ -69,16 +69,18 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
   }
 
   Future<void> _login() async {
-    final response = await _supabaseClient.auth.signIn(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
-    if (response.error == null) {
-      Navigator.pushNamed(context, '/home');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.error!.message)),
+    if (_formKey.currentState!.validate()) {
+      final response = await _supabaseClient.auth.signIn(
+        email: _emailController.text,
+        password: _passwordController.text,
       );
+      if (response.error == null) {
+        Navigator.pushNamed(context, '/home');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.error!.message)),
+        );
+      }
     }
   }
 
@@ -196,8 +198,8 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                     FilteringTextInputFormatter.digitsOnly,
                   ],
                   validator: (value) {
-                  if (value == null || value.length != 10) {
-                    return 'Please enter a valid cell number (Philippine number only)';
+                    if (value == null || value.length != 10) {
+                      return 'Please enter a valid cell number (Philippine number only)';
                     }
                     return null;
                   },
