@@ -2,45 +2,40 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'livestock_detail_page.dart';
 
 class LivestockInfoPage extends StatefulWidget {
-  final String livestockId;
-
-  LivestockInfoPage({required this.livestockId});
-
   @override
   _LivestockInfoPageState createState() => _LivestockInfoPageState();
 }
 
 class _LivestockInfoPageState extends State<LivestockInfoPage> {
   final SupabaseClient _supabaseClient = Supabase.instance.client;
-  Map<String, dynamic>? _livestockInfo;
+  List<Map<String, dynamic>> _livestockList = [];
   bool _isLoading = true;
   String? _error;
 
   @override
   void initState() {
     super.initState();
-    _fetchLivestockInfo();
+    _fetchAllLivestock();
   }
 
-  Future<void> _fetchLivestockInfo() async {
+  Future<void> _fetchAllLivestock() async {
     try {
       final response = await _supabaseClient
           .from('livestock')
-          .select()
-          .eq('livestock_id', widget.livestockId)
-          .single()
+          .select('livestock_name, livestock_breed, livestock_information')
           .execute();
 
-      if (response.error == null) {
+      if (response.error == null && response.data != null) {
         setState(() {
-          _livestockInfo = response.data as Map<String, dynamic>?;
+          _livestockList = List<Map<String, dynamic>>.from(response.data);
           _isLoading = false;
         });
       } else {
         setState(() {
-          _error = response.error!.message;
+          _error = response.error?.message ?? 'No data found';
           _isLoading = false;
         });
       }
@@ -52,40 +47,62 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
     }
   }
 
+  void _navigateToDetail(Map<String, dynamic> livestock) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LivestockDetailPage(livestock: livestock),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Livestock Information'),
-      ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(child: Text('Error: $_error'))
-              : _livestockInfo != null
-                  ? Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _livestockInfo!['livestock_name'] ?? 'Unknown',
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              : Padding(
+                  padding: const EdgeInsets.only(top: 16.0), // Adjust padding to move content up
+                  child: ListView.builder(
+                    itemCount: _livestockList.length,
+                    itemBuilder: (context, index) {
+                      final livestock = _livestockList[index];
+                      return GestureDetector(
+                        onTap: () => _navigateToDetail(livestock),
+                        child: Card(
+                          margin: const EdgeInsets.all(8.0),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  livestock['livestock_name'] ?? 'Unknown',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Breed: ${livestock['livestock_breed'] ?? 'Unknown'}',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  livestock['livestock_information'] ?? 'No information available',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Breed: ${_livestockInfo!['livestock_breed'] ?? 'Unknown'}',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _livestockInfo!['livestock_information'] ?? 'No information available',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Center(child: Text('No information available')),
+                        ),
+                      );
+                    },
+                  ),
+                ),
     );
   }
 }
