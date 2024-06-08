@@ -46,16 +46,15 @@ class HomePage extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              Navigator.pushNamed(context, '/login');
             },
-            child: const Text('Login'),
+            child: const Text('Close'),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              Navigator.pushNamed(context, '/signup');
+              Navigator.pushNamed(context, '/login_signup');
             },
-            child: const Text('Sign Up'),
+            child: const Text('Go Now'),
           ),
         ],
       ),
