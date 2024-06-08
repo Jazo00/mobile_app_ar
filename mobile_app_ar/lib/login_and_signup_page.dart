@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginAndSignupPage extends StatefulWidget {
@@ -108,12 +109,25 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _middleInitialController,
-                  decoration: InputDecoration(labelText: 'Middle Initial'),
+                  decoration: const InputDecoration(
+                    labelText: 'Middle Initial', 
+                    counterText: '',
+                    ),
+                  maxLength: 1,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z]')),
+                  ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your middle initial';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _cellNumberController,
-                  decoration: InputDecoration(labelText: 'Cell Number'),
+                  decoration: const InputDecoration(labelText: 'Cell Number'),
                   validator: (value) {
                     if (value == null || !RegExp(r'^\+63\d{10}$').hasMatch(value)) {
                       return 'Please enter a valid cell number (e.g., +639123456789)';
