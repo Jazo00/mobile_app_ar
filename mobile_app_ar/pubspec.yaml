@@ -18,5 +18,5 @@ dev_dependencies:
 
 flutter:
   assets: 
-    - lib/assets/Agri-lenz.png
+    - lib/assets/logo_final.png
   uses-material-design: true
