@@ -15,8 +15,10 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   bool _isLoggedIn = false;
   String? userId;
+  bool _redirectToMarketplace = false;
 
   static const List<String> _titles = <String>[
+    'Home',
     'Livestock Information',
     'Marketplace',
     'Post Listing',
@@ -46,6 +48,9 @@ class _HomePageState extends State<HomePage> {
 
   void _onItemTapped(int index) {
     if ((index == 2 || index == 3 || index == 4) && !_isLoggedIn) {
+      if (index == 2) {
+        _redirectToMarketplace = true;
+      }
       _showLoginPrompt();
     } else {
       setState(() {
@@ -70,8 +75,14 @@ class _HomePageState extends State<HomePage> {
                   context,
                   MaterialPageRoute(builder: (context) => LoginAndSignupPage()),
                 ).then((value) {
-                  _checkLoginStatus();
-                  _loadUserId();
+                  _checkLoginStatus().then((_) {
+                    _loadUserId().then((_) {
+                      if (_isLoggedIn && _redirectToMarketplace) {
+                        _redirectToMarketplace = false;
+                        _onItemTapped(2); // Navigate to marketplace after login
+                      }
+                    });
+                  });
                 });
               },
             ),
@@ -174,8 +185,14 @@ class _HomePageState extends State<HomePage> {
                 context,
                 MaterialPageRoute(builder: (context) => LoginAndSignupPage()),
               ).then((value) {
-                _checkLoginStatus();
-                _loadUserId();
+                _checkLoginStatus().then((_) {
+                  _loadUserId().then((_) {
+                    if (_isLoggedIn && _redirectToMarketplace) {
+                      _redirectToMarketplace = false;
+                      _onItemTapped(2); // Navigate to marketplace after login
+                    }
+                  });
+                });
               });
             },
             child: const Text('Login'),
