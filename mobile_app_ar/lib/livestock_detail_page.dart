@@ -50,6 +50,13 @@ class LivestockDetailPage extends StatelessWidget {
               livestock['livestock_information'] ?? 'No information available',
               style: TextStyle(fontSize: 16),
             ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // This button does nothing for now
+              },
+              child: Text('View in AR'),
+            ),
           ],
         ),
       ),
