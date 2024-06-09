@@ -45,33 +45,46 @@ class _PostListingPageState extends State<PostListingPage> {
     });
 
     try {
-      // Upload image
+      final user = _supabaseClient.auth.currentUser;
+      if (user == null) {
+        setState(() {
+          _error = 'User not authenticated.';
+        });
+        return;
+      }
+      final userId = user.id;
+      print('Authenticated user UID: $userId');
+
       final imageResponse = await _supabaseClient.storage
-          .from('listings')  // Correct bucket name
+          .from('listings')
           .upload('public/${DateTime.now().millisecondsSinceEpoch}.jpg', _image!);
 
       if (imageResponse.error != null) {
+        print('Image upload error: ${imageResponse.error!.message}');
         throw imageResponse.error!;
       }
 
       final imageUrl = _supabaseClient.storage.from('listings').getPublicUrl(imageResponse.data!).data!;
+      print('Image uploaded: $imageUrl');
 
-      // Insert listing
       final response = await _supabaseClient
-          .from('listing')  // Correct table name
+          .from('listing')
           .insert({
-            'title': _titleController.text,
-            'description': _descriptionController.text,
-            'price': double.parse(_priceController.text),
-            'image_url': imageUrl,
+            'listing_title': _titleController.text,
+            'listing_description': _descriptionController.text,
+            'listing_price': int.parse(_priceController.text), // Parse price as integer
+            'listing_image': imageUrl,
+            'created_at': DateTime.now().toIso8601String(),
+            'user_id': userId, // Use the correct column name
           })
           .execute();
 
       if (response.error != null) {
+        print('Insert error: ${response.error!.message}');
         throw response.error!;
       }
 
-      // Clear form
+      print('Insert response: ${response.data}');
       _titleController.clear();
       _descriptionController.clear();
       _priceController.clear();
@@ -84,6 +97,7 @@ class _PostListingPageState extends State<PostListingPage> {
       setState(() {
         _error = error.toString();
       });
+      print('Error: $error');
     } finally {
       setState(() {
         _isLoading = false;
