@@ -1,5 +1,3 @@
-// File: home_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'livestock_info.dart';
@@ -16,7 +14,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   bool _isLoggedIn = false;
-  String userId = '12345';
+  String? userId;
 
   static const List<String> _titles = <String>[
     'Welcome to Agri-Lenz',
@@ -30,12 +28,20 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _checkLoginStatus();
+    _loadUserId();
   }
 
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    });
+  }
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId = prefs.getString('userId');
     });
   }
 
@@ -66,6 +72,7 @@ class _HomePageState extends State<HomePage> {
                   MaterialPageRoute(builder: (context) => LoginAndSignupPage()),
                 ).then((value) {
                   _checkLoginStatus();
+                  _loadUserId();
                 });
               },
             ),
@@ -92,7 +99,13 @@ class _HomePageState extends State<HomePage> {
       case 3:
         return PostListingPage();
       case 4:
-        return UserProfilePage(userId: userId);
+        if (userId != null) {
+          return UserProfilePage(userId: userId!);
+        } else {
+          return Center(
+            child: Text('User ID is null. Please log in again.'),
+          );
+        }
       default:
         return HomePageContent(onViewMarketplace: () => _onItemTapped(2));
     }
@@ -151,11 +164,11 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text(
+          const Text(
             'Login to Continue',
             style: TextStyle(fontSize: 24),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
               Navigator.push(
@@ -163,9 +176,10 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(builder: (context) => LoginAndSignupPage()),
               ).then((value) {
                 _checkLoginStatus();
+                _loadUserId();
               });
             },
-            child: Text('Login'),
+            child: const Text('Login'),
           ),
         ],
       ),
@@ -203,7 +217,7 @@ class HomePageContent extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             const Text(
-              'Our system leverages AR technology to provide an enhanced experience...',
+              'The AR capability enhances user experience by overlaying digital information on the real world, providing informative content about livestock in an interactive and engaging way. This feature could include information about livestock breeds, care, feeding, and other relevant topics. Our system combines augmented reality (AR) technology with an information system for livestock and a marketplace for listing livestock for sale. Users can view livestock information in AR, access informative resources about livestock, and list livestock for sale. Transactions are not handled by the system; users manage transactions independently, and the system allows them to mark livestock as available for sale.',
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 20),

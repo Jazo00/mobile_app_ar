@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_app_ar/marketplace.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'home_page.dart';
 import 'login_and_signup_page.dart'; 
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +28,7 @@ class MainApp extends StatelessWidget {
         '/': (context) => StartupScreen(),
         '/home': (context) => HomePage(),
         '/login_signup': (context) => LoginAndSignupPage(), 
+        '/marketplace': (context) => MarketplacePage(),
       },
     );
   }
