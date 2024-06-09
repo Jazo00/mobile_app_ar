@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginAndSignupPage extends StatefulWidget {
@@ -39,7 +40,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         _emailController.text,
         _passwordController.text,
       );
-      if (response.error == null) {
+      if (response.error != null) {
         final insertResponse = await _supabaseClient.from('profiles').insert({
           'first_name': _firstNameController.text,
           'last_name': _lastNameController.text,
@@ -51,6 +52,10 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         }).execute();
 
         if (insertResponse.error == null) {
+          //save userId to SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('userId', response.user!.id);
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Sign-up successful! Please log in')),
           );
@@ -64,7 +69,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sign-up failed: ${response.error!.message}')),
+          SnackBar(content: Text('Sign-up failed: ${response.error?.message ?? 'Unknown error'}')),
         );
       }
     }
@@ -77,10 +82,16 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         password: _passwordController.text,
       );
       if (response.error == null) {
-        Navigator.pushNamed(context, '/home');
+        //save userId to SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('userId', response.user!.id);
+
+        Navigator.pushNamed(context, '/marketplace');
       } else {
+        //error occured during login
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.error!.message)),
+          SnackBar(content: Text(response.error!.message ?? 'An unknown error occurred')),
         );
       }
     }
@@ -286,50 +297,55 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              if (!isLogin) ...[
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  decoration: _inputDecoration(
-                    'Confirm Password',
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _confirmPasswordVisible = !_confirmPasswordVisible;
-                        });
-                      },
-                    ),
+             if (!isLogin) ...[
+            TextFormField(
+              controller: _confirmPasswordController,
+              decoration: _inputDecoration(
+                'Confirm Password',
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
                   ),
-                  obscureText: !_confirmPasswordVisible,
-                  validator: (value) {
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
+                  onPressed: () {
+                    setState(() {
+                      _confirmPasswordVisible = !_confirmPasswordVisible;
+                    });
                   },
                 ),
-                const SizedBox(height: 16),
-              ],
-              ElevatedButton(
-                  onPressed: isLogin ? _login : _signUp,
-                  child: Text(isLogin ? 'Login' : 'Sign Up'),
-                ),
-              TextButton(
-                onPressed: toggleFormType,
-                child: Text(isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'),
               ),
-              if (isLogin)
-                TextButton(
-                  onPressed: _forgotPassword,
-                  child: const Text('Forgot Password?'),
-                )
+              obscureText: !_confirmPasswordVisible,
+              validator: (value) {
+                if (value != _passwordController.text) {
+                  return 'Passwords do not match';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _signUp,
+              child: const Text('Sign Up'),
+            ),
+          ],
+          if (isLogin) ...[
+            ElevatedButton(
+              onPressed: _login,
+              child: const Text('Login'),
+            ),
+          ],
+          TextButton(
+            onPressed: toggleFormType,
+            child: Text(isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'),
+          ),
+          if (isLogin)
+            TextButton(
+              onPressed: _forgotPassword,
+              child: const Text('Forgot Password?'),
+              )
             ],
           ),
         ),
-      ),
+      ),  
     );
   }
 }
