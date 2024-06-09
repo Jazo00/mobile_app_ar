@@ -24,4 +24,5 @@ flutter:
   assets: 
     - lib/assets/logo_final.png
     - lib/assets/Ph_flag.svg
+    - lib/assets/chicken.png
   uses-material-design: true

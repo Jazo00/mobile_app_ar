@@ -23,8 +23,16 @@ class LivestockDetailPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
           children: [
+            // Display the larger image centered above the information
+            Image.asset(
+              livestock['image_path'] ?? 'lib/assets/chicken.png',
+              width: 200,
+              height: 200,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(height: 16),
             Text(
               livestock['livestock_name'] ?? 'Unknown',
               style: TextStyle(
