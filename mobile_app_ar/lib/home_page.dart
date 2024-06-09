@@ -17,7 +17,6 @@ class _HomePageState extends State<HomePage> {
   String? userId;
 
   static const List<String> _titles = <String>[
-    'Welcome to Agri-Lenz',
     'Livestock Information',
     'Marketplace',
     'Post Listing',
@@ -196,11 +195,21 @@ class HomePageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 5),
+            const SizedBox(height: 10),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Image.asset(
+                  'lib/assets/logo_final.png',
+                  height: 200,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
             const Text(
               'What is Augmented Reality?',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
