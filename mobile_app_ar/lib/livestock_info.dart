@@ -40,10 +40,12 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
         });
       }
     } catch (error) {
+      if (mounted) {
       setState(() {
         _error = error.toString();
         _isLoading = false;
-      });
+        });
+      }
     }
   }
 

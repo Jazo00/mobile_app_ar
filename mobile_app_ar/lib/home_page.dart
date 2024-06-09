@@ -17,6 +17,7 @@ class _HomePageState extends State<HomePage> {
   String? userId;
 
   static const List<String> _titles = <String>[
+    'Welcome to Agri-Lenz',
     'Livestock Information',
     'Marketplace',
     'Post Listing',
