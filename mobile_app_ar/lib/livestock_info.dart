@@ -25,7 +25,7 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
     try {
       final response = await _supabaseClient
           .from('livestock')
-          .select('livestock_name, livestock_breed, livestock_information, image_path')
+          .select('livestock_name, livestock_breed, livestock_information')
           .execute();
 
       if (response.error == null && response.data != null) {
@@ -83,10 +83,18 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
                               children: [
                                 // Display the larger image
                                 Image.asset(
-                                  livestock['image_path'] ?? 'lib/assets/chicken.png',
+                                  'lib/assets/chicken.png',
                                   width: 100,
                                   height: 100,
                                   fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'lib/assets/chicken.png',
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
                                 ),
                                 const SizedBox(width: 16),
                                 // Display the livestock details
