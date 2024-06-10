@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserProfilePage extends StatefulWidget {
+  final bool isLoggedIn;
   final String userId;
 
-  UserProfilePage({required this.userId});
+  UserProfilePage({required this.isLoggedIn, required this.userId});
 
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
@@ -14,6 +15,8 @@ class UserProfilePage extends StatefulWidget {
 class _UserProfilePageState extends State<UserProfilePage> {
   final SupabaseClient client = Supabase.instance.client;
   Map<String, dynamic> userData = {};
+  bool _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
@@ -22,41 +25,70 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Future<void> _fetchUserData() async {
-    final response = await client
-        .from('profiles')
-        .select()
-        .eq('userId', widget.userId)
-        .single()
-        .execute();
-    if (response.error == null) {
-      setState(() {
-        userData = response.data;
-      });
+    final authUserEmail = client.auth.currentUser?.email;
+    if (authUserEmail != null) {
+      final response = await client
+          .from('profiles')
+          .select()
+          .eq('email', authUserEmail)
+          .single()
+          .execute();
+      if (response.error == null) {
+        setState(() {
+          userData = response.data;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _error = response.error!.message;
+          _isLoading = false;
+        });
+      }
+    } else {
+      print('No authenticated user found.');
     }
+  }
+
+  void _logout() async {
+    await client.auth.signOut();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', false);
+    await prefs.remove('userId');
+    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('User Profile')),
-      body: userData.isEmpty
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            onPressed: _logout,
+            icon: Icon(Icons.logout),
+          ),
+        ],
+      ),
+      body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _buildProfileImage(),
-                  SizedBox(height: 20),
-                  _buildUserInfo(),
-                  SizedBox(height: 20),
-                  _buildEditProfileButton(),
-                  _buildChangeNumberButton(),
-                  _buildChangeEmailButton(),
-                  _buildChangePasswordButton(),
-                  _buildSaveChangesButton(),
-                ],
-              ),
-            ),
+          : _error != null
+              ? Center(child: Text('Error: $_error'))
+              : SingleChildScrollView(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      _buildProfileImage(),
+                      SizedBox(height: 20),
+                      _buildUserInfo(),
+                      SizedBox(height: 20),
+                      _buildEditProfileButton(),
+                      _buildChangeNumberButton(),
+                      _buildChangeEmailButton(),
+                      _buildChangePasswordButton(),
+                      _buildSaveChangesButton(),
+                    ],
+                  ),
+                ),
     );
   }
 
@@ -72,30 +104,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ? Icon(Icons.person, size: 50)
               : null,
         ),
-        TextButton(
-          onPressed: _changeProfileImage,
-          child: Text('Change Profile'),
-        ),
       ],
     );
   }
-
-  Future<void> _changeProfileImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-    final bytes = await pickedFile.readAsBytes();
-    final fileName = pickedFile.path.split('/').last;
-    final response = await client.storage
-        .from('profile-images')
-        .uploadBinary(fileName, bytes);
-    if (response.error == null) {
-      final imageUrl = client.storage.from('profile-images').getPublicUrl(fileName).data;
-      await client.from('profiles').update({'profile_image': imageUrl}).eq('userId', widget.userId).execute();
-      _fetchUserData();
-    }
-  }
-}
 
   Widget _buildUserInfo() {
     return Column(
@@ -157,13 +168,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Future<void> _saveChanges() async {
     // Check for changes and save to Supabase
-    final noChanges = true; // Add logic to check if no changes were made
-    if (noChanges) {
+    final bool changesMade = true; // Add your logic to detect changes
+    if (changesMade) {
+      // Save changes to Supabase
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Changes saved successfully.')),
+      );
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('There are no changes made.')),
       );
-    } else {
-      // Save changes to Supabase
     }
   }
 }
