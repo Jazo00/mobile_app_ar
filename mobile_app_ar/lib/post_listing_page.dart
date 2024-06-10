@@ -52,8 +52,26 @@ class _PostListingPageState extends State<PostListingPage> {
         });
         return;
       }
-      final userId = user.id;
-      print('Authenticated user UID: $userId');
+      final userEmail = user.email;
+      print('Authenticated user email: $userEmail');
+
+      // Fetch the user profile based on email
+      final profileResponse = await _supabaseClient
+          .from('profiles')
+          .select('id')
+          .eq('email', userEmail)
+          .single()
+          .execute();
+
+      if (profileResponse.error != null || profileResponse.data == null) {
+        setState(() {
+          _error = 'User profile not found.';
+        });
+        return;
+      }
+
+      final userId = profileResponse.data['id'];
+      print('User ID from profiles table: $userId');
 
       final imageResponse = await _supabaseClient.storage
           .from('listings')
@@ -75,7 +93,7 @@ class _PostListingPageState extends State<PostListingPage> {
             'listing_price': int.parse(_priceController.text), // Parse price as integer
             'listing_image': imageUrl,
             'created_at': DateTime.now().toIso8601String(),
-            'user_id': userId, // Use the correct column name
+            'user_id': userId, // Use the profile ID here
           })
           .execute();
 
