@@ -75,18 +75,24 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ? Center(child: Text('Error: $_error'))
               : SingleChildScrollView(
                   padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      _buildProfileImage(),
-                      SizedBox(height: 20),
-                      _buildUserInfo(),
-                      SizedBox(height: 20),
-                      _buildEditProfileButton(),
-                      _buildChangeNumberButton(),
-                      _buildChangeEmailButton(),
-                      _buildChangePasswordButton(),
-                      _buildSaveChangesButton(),
-                    ],
+                  child: Center(
+                    child: Column(
+                      children: [
+                        _buildProfileImage(),
+                        SizedBox(height: 20),
+                        _buildUserInfo(),
+                        SizedBox(height: 20),
+                        _buildEditProfileButton(),
+                        SizedBox(height: 10),
+                        _buildChangeNumberButton(),
+                        SizedBox(height: 10),
+                        _buildChangeEmailButton(),
+                        SizedBox(height: 10),
+                        _buildChangePasswordButton(),
+                        SizedBox(height: 10),
+                        _buildSaveChangesButton(),
+                      ],
+                    ),
                   ),
                 ),
     );
