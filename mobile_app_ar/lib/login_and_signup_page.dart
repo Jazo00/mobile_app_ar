@@ -40,7 +40,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         _emailController.text,
         _passwordController.text,
       );
-      if (response.error != null) {
+      if (response.error == null) {
         final insertResponse = await _supabaseClient.from('profiles').insert({
           'first_name': _firstNameController.text,
           'last_name': _lastNameController.text,
@@ -52,17 +52,20 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         }).execute();
 
         if (insertResponse.error == null) {
-          //save userId to SharedPreferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('userId', response.user!.id);
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Sign-up successful! Please log in')),
+            SnackBar(
+              content: Text('Sign-up successful! Check email to verify account.'),
+              duration: Duration(seconds: 2),
+            ),
           );
-          setState(() {
-            isLogin = true;
+
+          Timer(Duration(seconds: 2), () {
+            Navigator.pushReplacementNamed(context, '/login');
           });
-       } else {
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to save profile data: ${insertResponse.error!.message}')),
           );
@@ -82,14 +85,12 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         password: _passwordController.text,
       );
       if (response.error == null) {
-        //save userId to SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('userId', response.user!.id);
 
-        Navigator.pushNamed(context, '/home');  // Changed this line to navigate to the homepage
+        Navigator.pushNamed(context, '/home');
       } else {
-        //error occured during login
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response.error!.message ?? 'An unknown error occurred')),
         );
@@ -297,55 +298,56 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   return null;
                 },
               ),
-             if (!isLogin) ...[
-            TextFormField(
-              controller: _confirmPasswordController,
-              decoration: _inputDecoration(
-                'Confirm Password',
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+              const SizedBox(height: 16),
+              if (!isLogin) ...[
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  decoration: _inputDecoration(
+                    'Confirm Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _confirmPasswordVisible = !_confirmPasswordVisible;
+                        });
+                      },
+                    ),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _confirmPasswordVisible = !_confirmPasswordVisible;
-                    });
+                  obscureText: !_confirmPasswordVisible,
+                  validator: (value) {
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
                   },
                 ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _signUp,
+                  child: const Text('Sign Up'),
+                ),
+              ],
+              if (isLogin) ...[
+                ElevatedButton(
+                  onPressed: _login,
+                  child: const Text('Login'),
+                ),
+              ],
+              TextButton(
+                onPressed: toggleFormType,
+                child: Text(isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'),
               ),
-              obscureText: !_confirmPasswordVisible,
-              validator: (value) {
-                if (value != _passwordController.text) {
-                  return 'Passwords do not match';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _signUp,
-              child: const Text('Sign Up'),
-            ),
-          ],
-          if (isLogin) ...[
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text('Login'),
-            ),
-          ],
-          TextButton(
-            onPressed: toggleFormType,
-            child: Text(isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'),
-          ),
-          if (isLogin)
-            TextButton(
-              onPressed: _forgotPassword,
-              child: const Text('Forgot Password?'),
-              )
+              if (isLogin)
+                TextButton(
+                  onPressed: _forgotPassword,
+                  child: const Text('Forgot Password?'),
+                )
             ],
           ),
         ),
-      ),  
+      ),
     );
   }
 }
