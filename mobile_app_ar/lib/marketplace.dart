@@ -106,8 +106,11 @@ class _MarketplacePageState extends State<MarketplacePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Marketplace'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(2.0), 
+        child: AppBar(
+          automaticallyImplyLeading: false,
+        ),
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())

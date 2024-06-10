@@ -108,8 +108,11 @@ class _PostListingPageState extends State<PostListingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Post a Listing'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(2.0), 
+        child: AppBar(
+          automaticallyImplyLeading: false,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
