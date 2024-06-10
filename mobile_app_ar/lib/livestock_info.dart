@@ -28,19 +28,22 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
           .select('livestock_name, livestock_breed, livestock_information')
           .execute();
 
+      if (!mounted) return; // Check if the widget is still mounted
+
       if (response.error == null && response.data != null) {
+        if (!mounted) return; // Check if the widget is still mounted
         setState(() {
           _livestockList = List<Map<String, dynamic>>.from(response.data);
           _isLoading = false;
         });
       } else {
+        if (!mounted) return; // Check if the widget is still mounted
         setState(() {
           _error = response.error?.message ?? 'No data found';
           _isLoading = false;
         });
       }
     } catch (error) {
-      if (mounted) {
       setState(() {
         _error = error.toString();
         _isLoading = false;
@@ -67,76 +70,74 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
           automaticallyImplyLeading: false,
         ),
       ),
-    body: _isLoading
-        ? Center(child: CircularProgressIndicator())
-        : _error != null
-            ? Center(child: Text('Error: $_error'))
-            : ListView.builder(
-                itemCount: _livestockList.length,
-                itemBuilder: (context, index) {
-                  final livestock = _livestockList[index];
-                  return GestureDetector(
-                    onTap: () => _navigateToDetail(livestock),
-                    child: Card(
-                      margin: EdgeInsets.only(
-                        left: 8.0,
-                        right: 8.0,
-                        top: index == 0 ? 0.0 : 4.0, 
-                        bottom: 4.0,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Display the larger image
-                            Image.asset(
-                              'lib/assets/chicken.png',
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(child: Text('Error: $_error'))
+              : Padding(
+                  padding: const EdgeInsets.only(top: 16.0), // Adjust padding to move content up
+                  child: ListView.builder(
+                    itemCount: _livestockList.length,
+                    itemBuilder: (context, index) {
+                      final livestock = _livestockList[index];
+                      return GestureDetector(
+                        onTap: () => _navigateToDetail(livestock),
+                        child: Card(
+                          margin: const EdgeInsets.all(8.0),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Display the larger image
+                                Image.asset(
                                   'lib/assets/chicken.png',
                                   width: 100,
                                   height: 100,
                                   fit: BoxFit.cover,
-                                );
-                              },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'lib/assets/chicken.png',
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 16),
+                                // Display the livestock details
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        livestock['livestock_name'] ?? 'Unknown',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Breed: ${livestock['livestock_breed'] ?? 'Unknown'}',
+                                        style: TextStyle(fontSize: 18),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        livestock['livestock_information'] ?? 'No information available',
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 16),
-                            // Display the livestock details
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    livestock['livestock_name'] ?? 'Unknown',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Breed: ${livestock['livestock_breed'] ?? 'Unknown'}',
-                                    style: TextStyle(fontSize: 18),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    livestock['livestock_information'] ?? 'No information available',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                      );
+                    },
+                  ),
+                ),
     );
   }
 }
