@@ -61,6 +61,9 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Livestock Information'),
+      ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _error != null
@@ -77,25 +80,49 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
                           margin: const EdgeInsets.all(8.0),
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
-                            child: Column(
+                            child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  livestock['livestock_name'] ?? 'Unknown',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
+                                // Display the larger image
+                                Image.asset(
+                                  'lib/assets/chicken.png',
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'lib/assets/chicken.png',
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 16),
+                                // Display the livestock details
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        livestock['livestock_name'] ?? 'Unknown',
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Breed: ${livestock['livestock_breed'] ?? 'Unknown'}',
+                                        style: TextStyle(fontSize: 18),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        livestock['livestock_information'] ?? 'No information available',
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Breed: ${livestock['livestock_breed'] ?? 'Unknown'}',
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  livestock['livestock_information'] ?? 'No information available',
-                                  style: TextStyle(fontSize: 16),
                                 ),
                               ],
                             ),
