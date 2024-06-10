@@ -58,19 +58,26 @@ class _PostListingPageState extends State<PostListingPage> {
       // Fetch the user profile based on email
       final profileResponse = await _supabaseClient
           .from('profiles')
-          .select('id')
+          .select('userId')
           .eq('email', userEmail)
           .single()
           .execute();
 
-      if (profileResponse.error != null || profileResponse.data == null) {
+      if (profileResponse.error != null) {
+        setState(() {
+          _error = 'Error fetching user profile: ${profileResponse.error!.message}';
+        });
+        return;
+      }
+
+      if (profileResponse.data == null) {
         setState(() {
           _error = 'User profile not found.';
         });
         return;
       }
 
-      final userId = profileResponse.data['id'];
+      final userId = profileResponse.data['userId'];
       print('User ID from profiles table: $userId');
 
       final imageResponse = await _supabaseClient.storage
