@@ -1,3 +1,4 @@
+// home_page.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'livestock_info.dart';
@@ -18,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   bool _redirectToMarketplace = false;
 
   static const List<String> _titles = <String>[
-    'Home',
+    'Welcome to Agri-Lenz',
     'Livestock Information',
     'Marketplace',
     'Post Listing',
@@ -110,7 +111,7 @@ class _HomePageState extends State<HomePage> {
         return PostListingPage();
       case 4:
         if (userId != null) {
-          return UserProfilePage(userId: userId!);
+          return UserProfilePage(isLoggedIn: _isLoggedIn, userId: userId!);
         } else {
           return Center(
             child: Text('User ID is null. Please log in again.'),

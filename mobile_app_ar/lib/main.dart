@@ -11,6 +11,7 @@ void main() async {
   await Supabase.initialize(
     url: 'https://fbofelxkabyqngzbtuuo.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZib2ZlbHhrYWJ5cW5nemJ0dXVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTc3NjE0OTgsImV4cCI6MjAzMzMzNzQ5OH0.rexRkyI9f2-wOrqLkTx-tRU1ObpE_CKDOIWtW2hPRk8',
+    authCallbackUrlHostname: 'http://localhost:3000',
   );
   runApp(MainApp());
 }

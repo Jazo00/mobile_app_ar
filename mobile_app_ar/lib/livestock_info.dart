@@ -44,11 +44,11 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
         });
       }
     } catch (error) {
-      if (!mounted) return; // Check if the widget is still mounted
       setState(() {
         _error = error.toString();
         _isLoading = false;
-      });
+        });
+      }
     }
   }
 
@@ -64,15 +64,18 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Livestock Information'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(17.0), 
+        child: AppBar(
+          automaticallyImplyLeading: false,
+        ),
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(child: Text('Error: $_error'))
               : Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
+                  padding: const EdgeInsets.only(top: 16.0), // Adjust padding to move content up
                   child: ListView.builder(
                     itemCount: _livestockList.length,
                     itemBuilder: (context, index) {
