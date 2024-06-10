@@ -26,7 +26,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
     try {
       final response = await _supabaseClient
           .from('listing')
-          .select('listing_id, listing_title, listing_description, listing_price, user_id')
+          .select('listing_id, listing_title, listing_description, listing_price, created_at, user_id')
           .execute();
 
       print('Listings response: ${response.data}');
@@ -172,6 +172,11 @@ class _MarketplacePageState extends State<MarketplacePage> {
                                       const SizedBox(height: 8),
                                       Text(
                                         'Seller: ${listing['seller_name'] ?? 'Unknown'}',
+                                        style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Posted on: ${listing['created_at'] ?? 'Unknown'}',
                                         style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
                                       ),
                                     ],
