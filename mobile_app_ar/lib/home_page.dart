@@ -1,4 +1,4 @@
-// home_page.dart
+// File: home_page.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'livestock_info.dart';
@@ -16,7 +16,6 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   bool _isLoggedIn = false;
   String? userId;
-  bool _redirectToMarketplace = false;
 
   static const List<String> _titles = <String>[
     'Welcome to Agri-Lenz',
@@ -49,9 +48,6 @@ class _HomePageState extends State<HomePage> {
 
   void _onItemTapped(int index) {
     if ((index == 2 || index == 3 || index == 4) && !_isLoggedIn) {
-      if (index == 2) {
-        _redirectToMarketplace = true;
-      }
       _showLoginPrompt();
     } else {
       setState(() {
@@ -78,9 +74,10 @@ class _HomePageState extends State<HomePage> {
                 ).then((value) {
                   _checkLoginStatus().then((_) {
                     _loadUserId().then((_) {
-                      if (_isLoggedIn && _redirectToMarketplace) {
-                        _redirectToMarketplace = false;
-                        _onItemTapped(2); // Navigate to marketplace after login
+                      if (_isLoggedIn) {
+                        setState(() {
+                          _selectedIndex = 0; // Navigate to homepage after login
+                        });
                       }
                     });
                   });
@@ -102,7 +99,7 @@ class _HomePageState extends State<HomePage> {
   Widget _getPage(int index) {
     switch (index) {
       case 0:
-        return HomePageContent(onViewMarketplace: () => _onItemTapped(2));
+        return HomePageContent(onLogin: () => _showLoginPrompt());
       case 1:
         return LivestockInfoPage();
       case 2:
@@ -118,7 +115,7 @@ class _HomePageState extends State<HomePage> {
           );
         }
       default:
-        return HomePageContent(onViewMarketplace: () => _onItemTapped(2));
+        return HomePageContent(onLogin: () => _showLoginPrompt());
     }
   }
 
@@ -188,9 +185,10 @@ class _HomePageState extends State<HomePage> {
               ).then((value) {
                 _checkLoginStatus().then((_) {
                   _loadUserId().then((_) {
-                    if (_isLoggedIn && _redirectToMarketplace) {
-                      _redirectToMarketplace = false;
-                      _onItemTapped(2); // Navigate to marketplace after login
+                    if (_isLoggedIn) {
+                      setState(() {
+                        _selectedIndex = 0; // Navigate to homepage after login
+                      });
                     }
                   });
                 });
@@ -205,9 +203,9 @@ class _HomePageState extends State<HomePage> {
 }
 
 class HomePageContent extends StatelessWidget {
-  final VoidCallback onViewMarketplace;
+  final VoidCallback onLogin;
 
-  HomePageContent({required this.onViewMarketplace});
+  HomePageContent({required this.onLogin});
 
   @override
   Widget build(BuildContext context) {
@@ -249,8 +247,8 @@ class HomePageContent extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: onViewMarketplace,
-              child: Text('View Marketplace'),
+              onPressed: onLogin,
+              child: Text('Login'),
             ),
           ],
         ),

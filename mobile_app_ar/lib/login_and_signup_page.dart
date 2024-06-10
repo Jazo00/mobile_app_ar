@@ -87,7 +87,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('userId', response.user!.id);
 
-        Navigator.pushNamed(context, '/marketplace');
+        Navigator.pushNamed(context, '/home');  // Changed this line to navigate to the homepage
       } else {
         //error occured during login
         ScaffoldMessenger.of(context).showSnackBar(
