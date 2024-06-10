@@ -28,18 +28,23 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
           .select('livestock_name, livestock_breed, livestock_information')
           .execute();
 
+      if (!mounted) return; // Check if the widget is still mounted
+
       if (response.error == null && response.data != null) {
+        if (!mounted) return; // Check if the widget is still mounted
         setState(() {
           _livestockList = List<Map<String, dynamic>>.from(response.data);
           _isLoading = false;
         });
       } else {
+        if (!mounted) return; // Check if the widget is still mounted
         setState(() {
           _error = response.error?.message ?? 'No data found';
           _isLoading = false;
         });
       }
     } catch (error) {
+      if (!mounted) return; // Check if the widget is still mounted
       setState(() {
         _error = error.toString();
         _isLoading = false;
@@ -67,7 +72,7 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
           : _error != null
               ? Center(child: Text('Error: $_error'))
               : Padding(
-                  padding: const EdgeInsets.only(top: 16.0), // Adjust padding to move content up
+                  padding: const EdgeInsets.only(top: 16.0),
                   child: ListView.builder(
                     itemCount: _livestockList.length,
                     itemBuilder: (context, index) {
