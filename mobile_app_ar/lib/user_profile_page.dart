@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'edit_profile_page.dart';
 
 class UserProfilePage extends StatefulWidget {
   final bool isLoggedIn;
@@ -83,14 +84,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         _buildUserInfo(),
                         SizedBox(height: 20),
                         _buildEditProfileButton(),
-                        SizedBox(height: 10),
-                        _buildChangeNumberButton(),
-                        SizedBox(height: 10),
-                        _buildChangeEmailButton(),
-                        SizedBox(height: 10),
-                        _buildChangePasswordButton(),
-                        SizedBox(height: 10),
-                        _buildSaveChangesButton(),
                       ],
                     ),
                   ),
@@ -132,58 +125,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget _buildEditProfileButton() {
     return ElevatedButton(
       onPressed: () {
-        // Navigate to edit profile page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditProfilePage(userData: userData),
+          ),
+        );
       },
       child: Text('Edit Profile'),
     );
-  }
-
-  Widget _buildChangeNumberButton() {
-    return ElevatedButton(
-      onPressed: () {
-        // Navigate to change number page
-      },
-      child: Text('Change Number'),
-    );
-  }
-
-  Widget _buildChangeEmailButton() {
-    return ElevatedButton(
-      onPressed: () {
-        // Navigate to change email page
-      },
-      child: Text('Change Email'),
-    );
-  }
-
-  Widget _buildChangePasswordButton() {
-    return ElevatedButton(
-      onPressed: () {
-        // Navigate to change password page
-      },
-      child: Text('Change Password'),
-    );
-  }
-
-  Widget _buildSaveChangesButton() {
-    return ElevatedButton(
-      onPressed: _saveChanges,
-      child: Text('Save Changes'),
-    );
-  }
-
-  Future<void> _saveChanges() async {
-    // Check for changes and save to Supabase
-    final bool changesMade = true; // Add your logic to detect changes
-    if (changesMade) {
-      // Save changes to Supabase
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Changes saved successfully.')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('There are no changes made.')),
-      );
-    }
   }
 }
