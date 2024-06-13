@@ -1,5 +1,3 @@
-// File: post_listing_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -89,7 +87,8 @@ class _PostListingPageState extends State<PostListingPage> {
         throw imageResponse.error!;
       }
 
-      final imageUrl = _supabaseClient.storage.from('listings').getPublicUrl(imageResponse.data!).data!;
+      // Correctly construct the public URL of the uploaded image
+      final imageUrl = 'https://fbofelxkabyqngzbtuuo.supabase.co/storage/v1/object/public/${imageResponse.data!}';
       print('Image uploaded: $imageUrl');
 
       final response = await _supabaseClient

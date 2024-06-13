@@ -26,7 +26,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
     try {
       final response = await _supabaseClient
           .from('listing')
-          .select('listing_id, listing_title, listing_description, listing_price, created_at, user_id')
+          .select('listing_id, listing_title, listing_description, listing_price, listing_image, created_at, user_id')
           .execute();
 
       print('Listings response: ${response.data}');
@@ -107,7 +107,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(2.0), 
+        preferredSize: Size.fromHeight(2.0),
         child: AppBar(
           automaticallyImplyLeading: false,
         ),
@@ -122,6 +122,10 @@ class _MarketplacePageState extends State<MarketplacePage> {
                     itemCount: _listingList.length,
                     itemBuilder: (context, index) {
                       final listing = _listingList[index];
+                      final imageUrl = listing['listing_image'] != null && !listing['listing_image'].startsWith('http')
+                          ? 'https://fbofelxkabyqngzbtuuo.supabase.co/storage/v1/object/public/listings/public/${listing['listing_image']}'
+                          : listing['listing_image'];
+                      print('Listing image URL: $imageUrl');
                       return GestureDetector(
                         onTap: () => _navigateToDetail(listing),
                         child: Card(
@@ -133,19 +137,21 @@ class _MarketplacePageState extends State<MarketplacePage> {
                               children: [
                                 listing['listing_image'] != null
                                     ? Image.network(
-                                        listing['listing_image'],
+                                        imageUrl,
                                         width: 100,
                                         height: 100,
                                         fit: BoxFit.cover,
                                         errorBuilder: (context, error, stackTrace) {
+                                          print('Error loading image: $error');
                                           return Icon(Icons.error);
                                         },
+                                        headers: {'Cache-Control': 'no-cache'},
                                       )
-                                    : Image.asset(
-                                        'lib/assets/chicken.png',
+                                    : Container(
                                         width: 100,
                                         height: 100,
-                                        fit: BoxFit.cover,
+                                        color: Colors.grey,
+                                        child: Icon(Icons.error),
                                       ),
                                 const SizedBox(width: 16),
                                 Expanded(
