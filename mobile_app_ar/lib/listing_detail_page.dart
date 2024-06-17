@@ -50,7 +50,7 @@ class ListingDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '\$${listing['listing_price']?.toString() ?? 'No Price'}',
+                '₱${listing['listing_price']?.toString() ?? 'No Price'}',
                 style: TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 8),

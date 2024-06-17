@@ -213,7 +213,7 @@ class _MyListingPageState extends State<MyListingPage> {
                                 )
                               : Icon(Icons.image, size: 64.0),
                           title: Text(listing['listing_title'] ?? ''),
-                          subtitle: Text('Price: \$${listing['listing_price'] ?? 0}\nDescription: ${listing['listing_description'] ?? ''}'),
+                          subtitle: Text('Price: ₱${listing['listing_price'] ?? 0}\nDescription: ${listing['listing_description'] ?? ''}'),
                           trailing: PopupMenuButton<String>(
                             onSelected: (value) {
                               if (value == 'delete') {
