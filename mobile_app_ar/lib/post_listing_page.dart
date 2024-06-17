@@ -3,6 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+import 'my_listing_page.dart'; // Import the MyListingPage
+
 class PostListingPage extends StatefulWidget {
   @override
   _PostListingPageState createState() => _PostListingPageState();
@@ -53,7 +55,6 @@ class _PostListingPageState extends State<PostListingPage> {
       final userEmail = user.email;
       print('Authenticated user email: $userEmail');
 
-      // Fetch the user profile based on email
       final profileResponse = await _supabaseClient
           .from('profiles')
           .select('userId')
@@ -87,7 +88,6 @@ class _PostListingPageState extends State<PostListingPage> {
         throw imageResponse.error!;
       }
 
-      // Correctly construct the public URL of the uploaded image
       final imageUrl = 'https://fbofelxkabyqngzbtuuo.supabase.co/storage/v1/object/public/${imageResponse.data!}';
       print('Image uploaded: $imageUrl');
 
@@ -96,10 +96,10 @@ class _PostListingPageState extends State<PostListingPage> {
           .insert({
             'listing_title': _titleController.text,
             'listing_description': _descriptionController.text,
-            'listing_price': int.parse(_priceController.text), // Parse price as integer
+            'listing_price': int.parse(_priceController.text),
             'listing_image': imageUrl,
             'created_at': DateTime.now().toIso8601String(),
-            'user_id': userId, // Use the profile ID here
+            'user_id': userId,
           })
           .execute();
 
@@ -176,6 +176,16 @@ class _PostListingPageState extends State<PostListingPage> {
                 SizedBox(height: 16),
                 Text('Error: $_error', style: TextStyle(color: Colors.red)),
               ],
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyListingPage()),
+                  );
+                },
+                child: Text('Go to My Listings'),
+              ),
             ],
           ),
         ),
