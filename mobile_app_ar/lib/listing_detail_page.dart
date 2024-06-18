@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'user_profile_detail_page.dart';
 
 class ListingDetailPage extends StatelessWidget {
   final Map<String, dynamic> listing;
@@ -70,9 +71,18 @@ class ListingDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
-                  // This button does nothing for now
-                },
+                onPressed: listing['user_id'] != null
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => UserProfileDetailPage(
+                              userId: listing['user_id'],
+                            ),
+                          ),
+                        );
+                      }
+                    : null,
                 child: Text('View User Profile'),
               ),
             ],
