@@ -1,6 +1,7 @@
 // File: livestock_detail_page.dart
 
 import 'package:flutter/material.dart';
+import 'standards_page.dart';  // Import the new Standards page
 
 class LivestockDetailPage extends StatelessWidget {
   final Map<String, dynamic> livestock;
@@ -56,6 +57,18 @@ class LivestockDetailPage extends StatelessWidget {
                 // This button does nothing for now
               },
               child: Text('View in AR'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StandardsPage(),
+                  ),
+                );
+              },
+              child: Text('Standards for a Healthy Life Cycle'),
             ),
           ],
         ),
