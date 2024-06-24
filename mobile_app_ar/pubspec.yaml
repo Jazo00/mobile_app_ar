@@ -16,6 +16,7 @@ dependencies:
   shared_preferences: ^2.0.6
   image_picker: ^0.8.4+3
   uuid: ^3.0.4
+  intl: ^0.17.0 
 
 
 dev_dependencies:

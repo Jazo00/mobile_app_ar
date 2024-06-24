@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -20,12 +21,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _middleInitialController = TextEditingController();
   final TextEditingController _cellNumberController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _dateOfBirthController = TextEditingController();
   String _selectedSex = 'Male';
   bool _isLoading = false;
   String? _error;
   File? _selectedImage;
   String? _profileImageUrl;
+  DateTime? _selectedDateOfBirth;
 
   @override
   void initState() {
@@ -34,9 +36,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _lastNameController.text = widget.userData['last_name'] ?? '';
     _middleInitialController.text = widget.userData['middle_initial'] ?? '';
     _cellNumberController.text = widget.userData['cell_number'] ?? '';
-    _ageController.text = widget.userData['age']?.toString() ?? ''; // Convert to string
     _selectedSex = widget.userData['sex'] ?? 'Male';
     _profileImageUrl = widget.userData['pfp'];
+    
+    if (widget.userData['date_of_birth'] != null) {
+      _selectedDateOfBirth = DateTime.parse(widget.userData['date_of_birth']);
+      _dateOfBirthController.text = DateFormat('yyyy-MM-dd').format(_selectedDateOfBirth!);
+    }
   }
 
   Future<void> _pickImage() async {
@@ -53,8 +59,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     try {
       final bytes = await _selectedImage!.readAsBytes();
       final fileName = _selectedImage!.path.split('/').last;
-      final uuid = Uuid().v4(); // Generate a unique identifier
-      final filePath = 'profile/$uuid-$fileName'; // Use the unique identifier in the file path
+      final uuid = Uuid().v4();
+      final filePath = 'profile/$uuid-$fileName';
 
       final response = await client.storage
           .from('profile')
@@ -77,6 +83,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
+  int _calculateAge(DateTime birthDate) {
+    final today = DateTime.now();
+    int age = today.year - birthDate.year;
+    if (today.month < birthDate.month ||
+        (today.month == birthDate.month && today.day < birthDate.day)) {
+      age--;
+    }
+    return age;
+  }
+
   Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -93,11 +109,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
               'last_name': _lastNameController.text,
               'middle_initial': _middleInitialController.text.toUpperCase(),
               'cell_number': _cellNumberController.text,
-              'age': int.parse(_ageController.text), // Convert back to integer
+              'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
+              'age': _calculateAge(_selectedDateOfBirth!),
               'sex': _selectedSex,
-              'pfp': _profileImageUrl, // Save profile image URL
+              'pfp': _profileImageUrl,
             })
-            .eq('userId', widget.userData['userId']) // Use userId here
+            .eq('userId', widget.userData['userId'])
             .execute();
 
         if (response.error != null) {
@@ -107,7 +124,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           print('Update error: ${response.error!.message}');
         } else {
           print('Update response: ${response.data}');
-          Navigator.pop(context, widget.userData..['pfp'] = _profileImageUrl); // Pass updated data back
+          Navigator.pop(context, widget.userData..['pfp'] = _profileImageUrl);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Profile updated successfully.')),
           );
@@ -144,6 +161,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
     );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDateOfBirth ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDateOfBirth) {
+      setState(() {
+        _selectedDateOfBirth = picked;
+        _dateOfBirthController.text = DateFormat('yyyy-MM-dd').format(picked);
+      });
+    }
   }
 
   @override
@@ -229,15 +261,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _ageController,
-                  decoration: _inputDecoration('Age'),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d{1,2}$')),
-                  ],
+                  controller: _dateOfBirthController,
+                  readOnly: true,
+                  onTap: () => _selectDate(context),
+                  decoration: _inputDecoration('Date of Birth', suffixIcon: Icon(Icons.calendar_today)),
                   validator: (value) {
-                    if (value == null || value.isEmpty || int.tryParse(value) == null) {
-                      return 'Please enter a valid age';
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your date of birth';
                     }
                     return null;
                   },
