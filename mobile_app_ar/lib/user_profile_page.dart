@@ -78,10 +78,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        title: Text('User Profile'),
         actions: [
-          IconButton(
+          ElevatedButton(
             onPressed: _logout,
-            icon: Icon(Icons.logout),
+            child: Text(
+              'Logout',
+              style: TextStyle(color: Colors.white),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color.fromARGB(255, 165, 163, 163), // Button color
+            ),
           ),
         ],
       ),
