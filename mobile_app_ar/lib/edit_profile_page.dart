@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class EditProfilePage extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -35,7 +36,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _firstNameController.text = widget.userData['first_name'] ?? '';
     _lastNameController.text = widget.userData['last_name'] ?? '';
     _middleInitialController.text = widget.userData['middle_initial'] ?? '';
-    _cellNumberController.text = widget.userData['cell_number'] ?? '';
+    _cellNumberController.text = widget.userData['cell_number']?.replaceFirst('+63', '') ?? '';
     _selectedSex = widget.userData['sex'] ?? 'Male';
     _profileImageUrl = widget.userData['pfp'];
     
@@ -108,7 +109,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               'first_name': _firstNameController.text,
               'last_name': _lastNameController.text,
               'middle_initial': _middleInitialController.text.toUpperCase(),
-              'cell_number': _cellNumberController.text,
+              'cell_number': '+63${_cellNumberController.text}',
               'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
               'age': _calculateAge(_selectedDateOfBirth!),
               'sex': _selectedSex,
@@ -247,14 +248,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 TextFormField(
                   controller: _cellNumberController,
                   keyboardType: TextInputType.number,
-                  decoration: _inputDecoration('Cell Number'),
+                  decoration: _inputDecoration(
+                    'Cell Number',
+                    prefixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: SvgPicture.asset(
+                            'lib/assets/Ph_flag.svg',
+                            width: 24,
+                            height: 24,
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(right: 8.0),
+                          child: Text(
+                            '+63',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
                   maxLength: 10,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                   ],
                   validator: (value) {
                     if (value == null || value.length != 10) {
-                      return 'Please enter a valid cell number (10 digits)';
+                      return 'Please enter a valid cell number (Philippine number only)';
                     }
                     return null;
                   },
