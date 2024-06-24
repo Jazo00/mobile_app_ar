@@ -96,10 +96,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
       children: [
         CircleAvatar(
           radius: 50,
-          backgroundImage: userData['profile_image'] != null
-              ? NetworkImage(userData['profile_image'])
+          backgroundImage: userData['pfp'] != null
+              ? NetworkImage(userData['pfp'])
               : null,
-          child: userData['profile_image'] == null
+          child: userData['pfp'] == null
               ? Icon(Icons.person, size: 50)
               : null,
         ),
