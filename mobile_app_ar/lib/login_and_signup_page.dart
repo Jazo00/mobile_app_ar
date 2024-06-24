@@ -1,10 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:intl/intl.dart'; // Import for date formatting
 
 class LoginAndSignupPage extends StatefulWidget {
   @override
@@ -23,15 +23,26 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
   final TextEditingController _middleInitialController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _cellNumberController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _dateOfBirthController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   String _selectedSex = 'Male';
+  DateTime? _selectedDateOfBirth;
 
   void toggleFormType() {
     setState(() {
       isLogin = !isLogin;
     });
+  }
+
+  int _calculateAge(DateTime birthDate) {
+    final today = DateTime.now();
+    int age = today.year - birthDate.year;
+    if (today.month < birthDate.month ||
+        (today.month == birthDate.month && today.day < birthDate.day)) {
+      age--;
+    }
+    return age;
   }
 
   Future<void> _signUp() async {
@@ -47,7 +58,8 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
           'middle_initial': _middleInitialController.text,
           'email': _emailController.text,
           'cell_number': '+63${_cellNumberController.text}',
-          'age': int.parse(_ageController.text),
+          'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
+          'age': _calculateAge(_selectedDateOfBirth!),
           'sex': _selectedSex,
         }).execute();
 
@@ -128,6 +140,21 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
     );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDateOfBirth ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDateOfBirth) {
+      setState(() {
+        _selectedDateOfBirth = picked;
+        _dateOfBirthController.text = DateFormat('yyyy-MM-dd').format(picked);
+      });
+    }
   }
 
   @override
@@ -233,15 +260,13 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _ageController,
-                  decoration: _inputDecoration('Age'),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d{1,2}$')),
-                  ],
+                  controller: _dateOfBirthController,
+                  readOnly: true,
+                  onTap: () => _selectDate(context),
+                  decoration: _inputDecoration('Date of Birth', suffixIcon: Icon(Icons.calendar_today)),
                   validator: (value) {
-                    if (value == null || value.isEmpty || int.tryParse(value) == null) {
-                      return 'Please enter a valid age';
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your date of birth';
                     }
                     return null;
                   },
