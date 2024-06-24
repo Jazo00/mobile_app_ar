@@ -58,6 +58,21 @@ class _UserProfilePageState extends State<UserProfilePage> {
     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 
+  Future<void> _navigateToEditProfile() async {
+    final updatedUserData = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfilePage(userData: userData),
+      ),
+    );
+
+    if (updatedUserData != null) {
+      setState(() {
+        userData = updatedUserData;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,14 +139,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Widget _buildEditProfileButton() {
     return ElevatedButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => EditProfilePage(userData: userData),
-          ),
-        );
-      },
+      onPressed: _navigateToEditProfile,
       child: Text('Edit Profile'),
     );
   }

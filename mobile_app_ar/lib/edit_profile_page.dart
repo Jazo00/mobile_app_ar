@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 class EditProfilePage extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -20,6 +23,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _sexController = TextEditingController();
   bool _isLoading = false;
   String? _error;
+  File? _selectedImage;
+  String? _profileImageUrl;
 
   @override
   void initState() {
@@ -30,6 +35,45 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _cellNumberController.text = widget.userData['cell_number'] ?? '';
     _ageController.text = widget.userData['age']?.toString() ?? ''; // Convert to string
     _sexController.text = widget.userData['sex'] ?? '';
+    _profileImageUrl = widget.userData['pfp'];
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _uploadProfileImage() async {
+    if (_selectedImage == null) return;
+    try {
+      final bytes = await _selectedImage!.readAsBytes();
+      final fileName = _selectedImage!.path.split('/').last;
+      final uuid = Uuid().v4(); // Generate a unique identifier
+      final filePath = 'profile/$uuid-$fileName'; // Use the unique identifier in the file path
+
+      final response = await client.storage
+          .from('profile')
+          .uploadBinary(filePath, bytes);
+
+      if (response.error == null) {
+        final urlResponse = client.storage
+            .from('profile')
+            .getPublicUrl(filePath);
+        _profileImageUrl = urlResponse.data;
+      } else {
+        setState(() {
+          _error = response.error!.message;
+        });
+      }
+    } catch (error) {
+      setState(() {
+        _error = error.toString();
+      });
+    }
   }
 
   Future<void> _saveProfile() async {
@@ -39,6 +83,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
 
     try {
+      await _uploadProfileImage();
       final response = await client
           .from('profiles')
           .update({
@@ -48,6 +93,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             'cell_number': _cellNumberController.text,
             'age': int.parse(_ageController.text), // Convert back to integer
             'sex': _sexController.text,
+            'pfp': _profileImageUrl, // Save profile image URL
           })
           .eq('userId', widget.userData['userId']) // Use userId here
           .execute();
@@ -59,7 +105,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         print('Update error: ${response.error!.message}');
       } else {
         print('Update response: ${response.data}');
-        Navigator.pop(context);
+        Navigator.pop(context, widget.userData..['pfp'] = _profileImageUrl); // Pass updated data back
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Profile updated successfully.')),
         );
@@ -87,6 +133,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              GestureDetector(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundImage: _selectedImage != null
+                      ? FileImage(_selectedImage!)
+                      : _profileImageUrl != null
+                          ? NetworkImage(_profileImageUrl!)
+                          : null,
+                  child: _selectedImage == null && _profileImageUrl == null
+                      ? Icon(Icons.person, size: 50)
+                      : null,
+                ),
+              ),
+              SizedBox(height: 20),
               TextField(
                 controller: _firstNameController,
                 decoration: InputDecoration(labelText: 'First Name'),
