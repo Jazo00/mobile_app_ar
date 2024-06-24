@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StandardsPage extends StatefulWidget {
+  final String livestockId;
+
+  StandardsPage({required this.livestockId});
+
   @override
   _StandardsPageState createState() => _StandardsPageState();
 }
@@ -23,6 +27,7 @@ class _StandardsPageState extends State<StandardsPage> {
     final response = await _supabaseClient
         .from('livestock_health')
         .select()
+        .eq('ls_id_fk', widget.livestockId)  // Filter by livestock ID
         .execute();
 
     if (response.error == null) {
@@ -39,11 +44,12 @@ class _StandardsPageState extends State<StandardsPage> {
     }
   }
 
-  String _getLivestockType(dynamic livestockType) {
-    if (livestockType == 1) {
-      return 'Chicken';
-    }
-    return 'Unknown';
+  String _getStringValue(dynamic value) {
+    return value ?? 'N/A';
+  }
+
+  int _getIntValue(dynamic value) {
+    return value ?? 0;
   }
 
   @override
@@ -69,19 +75,17 @@ class _StandardsPageState extends State<StandardsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Feed: ${item['ls_feed'] ?? 'N/A'}'),
+                              Text('Feed: ${_getStringValue(item['ls_feed'])}'),
                               const SizedBox(height: 8),
-                              Text('Meds: ${item['ls_meds'] ?? 'N/A'}'),
+                              Text('Meds: ${_getStringValue(item['ls_meds'])}'),
                               const SizedBox(height: 8),
-                              Text('Age (days): ${item['ls_age_days'] ?? 'N/A'}'),
+                              Text('Age (days): ${_getIntValue(item['ls_age_days'])}'),
                               const SizedBox(height: 8),
-                              Text('Age (weeks): ${item['ls_age_weeks'] ?? 'N/A'}'),
+                              Text('Age (weeks): ${_getIntValue(item['ls_age_weeks'])}'),
                               const SizedBox(height: 8),
-                              Text('Age (months): ${item['ls_age_months'] ?? 'N/A'}'),
+                              Text('Age (months): ${_getIntValue(item['ls_age_months'])}'),
                               const SizedBox(height: 8),
-                              Text('Age (years): ${item['ls_age_years'] ?? 'N/A'}'),
-                              const SizedBox(height: 8),
-                              Text('Livestock Type: ${_getLivestockType(item['ls_livestock_type'])}'),
+                              Text('Age (years): ${_getIntValue(item['ls_age_years'])}'),
                             ],
                           ),
                         ),

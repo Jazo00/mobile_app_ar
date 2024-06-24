@@ -10,6 +10,8 @@ class LivestockDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('Livestock map: $livestock'); // Debugging log for entire map
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false, // Disable automatic back button
@@ -61,12 +63,23 @@ class LivestockDetailPage extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => StandardsPage(),
-                  ),
-                );
+                final livestockId = livestock['livestock_id'];
+                print('Livestock ID: $livestockId'); // Debugging log for livestock_id
+                if (livestockId != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StandardsPage(
+                        livestockId: livestockId,  // Pass livestock ID
+                      ),
+                    ),
+                  );
+                } else {
+                  // Handle case where livestockId is null
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: Livestock ID is null')),
+                  );
+                }
               },
               child: Text('Standards for a Healthy Life Cycle'),
             ),
