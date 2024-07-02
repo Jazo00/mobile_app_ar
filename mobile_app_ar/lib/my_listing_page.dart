@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'listing_detail_page.dart';
-import 'update_listing_page.dart'; // Import the new page
+import 'update_listing_page.dart';
 
 class MyListingPage extends StatefulWidget {
   @override
@@ -13,6 +13,7 @@ class _MyListingPageState extends State<MyListingPage> {
   List<Map<String, dynamic>> _listingList = [];
   bool _isLoading = true;
   String? _error;
+  bool _showSoldListings = false;
 
   @override
   void initState() {
@@ -50,8 +51,9 @@ class _MyListingPageState extends State<MyListingPage> {
     try {
       final response = await _supabaseClient
           .from('listing')
-          .select('listing_id, listing_title, listing_description, listing_price, listing_image, created_at, user_id')
+          .select('listing_id, listing_title, listing_description, listing_price, listing_image, created_at, user_id, is_sold')
           .eq('user_id', userId)
+          .eq('is_sold', _showSoldListings)
           .execute();
 
       if (response.error != null || response.data == null) {
@@ -163,7 +165,48 @@ class _MyListingPageState extends State<MyListingPage> {
   }
 
   Future<void> _markAsSold(String listingId) async {
-    // Implement your mark as sold logic here
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Confirm Mark as Sold'),
+          content: Text(
+              'Are you sure you want to mark this as sold? To protect the validity and prevent scams, this process is irreversible.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text('No'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      try {
+        final response = await _supabaseClient
+            .from('listing')
+            .update({'is_sold': true})
+            .eq('listing_id', listingId)
+            .execute();
+
+        if (response.error != null) {
+          throw Exception(response.error?.message ?? 'Failed to mark as sold');
+        }
+
+        setState(() {
+          _fetchUserData();
+        });
+      } catch (error) {
+        setState(() {
+          _error = error.toString();
+        });
+      }
+    }
   }
 
   void _navigateToDetail(Map<String, dynamic> listing) {
@@ -173,6 +216,14 @@ class _MyListingPageState extends State<MyListingPage> {
         builder: (context) => ListingDetailPage(listing: listing),
       ),
     );
+  }
+
+  void _toggleListings(bool showSoldListings) {
+    setState(() {
+      _showSoldListings = showSoldListings;
+      _isLoading = true;
+      _fetchUserData();
+    });
   }
 
   @override
@@ -186,6 +237,36 @@ class _MyListingPageState extends State<MyListingPage> {
           },
         ),
         title: Text('My Listings'),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(48.0),
+          child: Container(
+            color: Colors.grey,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () => _toggleListings(false),
+                  child: Text(
+                    'Active Listings',
+                    style: TextStyle(
+                      color: !_showSoldListings ? Colors.white : Colors.white60,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.0),
+                TextButton(
+                  onPressed: () => _toggleListings(true),
+                  child: Text(
+                    'Sold Listings',
+                    style: TextStyle(
+                      color: _showSoldListings ? Colors.white : Colors.white60,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
@@ -213,7 +294,11 @@ class _MyListingPageState extends State<MyListingPage> {
                                 )
                               : Icon(Icons.image, size: 64.0),
                           title: Text(listing['listing_title'] ?? ''),
-                          subtitle: Text('Price: ₱${listing['listing_price'] ?? 0}\nDescription: ${listing['listing_description'] ?? ''}'),
+                          subtitle: Text(
+                            'Price: ₱${listing['listing_price'] ?? 0}\n'
+                            'Description: ${listing['listing_description'] ?? ''}\n'
+                            'Status: ${listing['is_sold'] ? 'Sold' : 'Available'}',
+                          ),
                           trailing: PopupMenuButton<String>(
                             onSelected: (value) {
                               if (value == 'delete') {

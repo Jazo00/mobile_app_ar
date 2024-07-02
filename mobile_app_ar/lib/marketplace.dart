@@ -26,7 +26,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
     try {
       final response = await _supabaseClient
           .from('listing')
-          .select('listing_id, listing_title, listing_description, listing_price, listing_image, created_at, user_id')
+          .select('listing_id, listing_title, listing_description, listing_price, listing_image, created_at, user_id, is_sold')
+          .eq('is_sold', false)
           .execute();
 
       print('Listings response: ${response.data}');
