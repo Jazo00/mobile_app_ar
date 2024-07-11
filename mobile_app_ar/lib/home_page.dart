@@ -2,10 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'livestock_info.dart';
-import 'marketplace.dart';
 import 'user_profile_page.dart';
 import 'login_and_signup_page.dart';
-import 'post_listing_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,8 +18,6 @@ class _HomePageState extends State<HomePage> {
   static const List<String> _titles = <String>[
     'Welcome to Agri-Lenz',
     'Livestock Information',
-    'Marketplace',
-    'Post Listing',
     'Account'
   ];
 
@@ -47,7 +43,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onItemTapped(int index) {
-    if ((index == 2 || index == 3 || index == 4) && !_isLoggedIn) {
+    if ((index == 2) && !_isLoggedIn) {
       _showLoginPrompt();
     } else {
       setState(() {
@@ -103,10 +99,6 @@ class _HomePageState extends State<HomePage> {
       case 1:
         return LivestockInfoPage();
       case 2:
-        return MarketplacePage();
-      case 3:
-        return PostListingPage();
-      case 4:
         if (userId != null) {
           return UserProfilePage(isLoggedIn: _isLoggedIn, userId: userId!);
         } else {
@@ -145,14 +137,6 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.pets),
             label: 'Livestock',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Marketplace',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.post_add),
-            label: 'Post Listing',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),

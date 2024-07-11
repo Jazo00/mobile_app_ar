@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mobile_app_ar/marketplace.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'home_page.dart';
 import 'login_and_signup_page.dart'; 
@@ -28,8 +27,7 @@ class MainApp extends StatelessWidget {
       routes: {
         '/': (context) => StartupScreen(),
         '/home': (context) => HomePage(),
-        '/login_signup': (context) => LoginAndSignupPage(), 
-        '/marketplace': (context) => MarketplacePage(),
+        '/login_signup': (context) => LoginAndSignupPage()
       },
     );
   }
