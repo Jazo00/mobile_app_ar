@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onItemTapped(int index) {
-    if ((index == 2) && !_isLoggedIn) {
+    if ((index == 1 || index == 2) && !_isLoggedIn) {
       _showLoginPrompt();
     } else {
       setState(() {
@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      body: _isLoggedIn || _selectedIndex == 0 || _selectedIndex == 1
+      body: _isLoggedIn || _selectedIndex == 0
           ? _getPage(_selectedIndex)
           : _buildLoginScreen(),
       bottomNavigationBar: BottomNavigationBar(
