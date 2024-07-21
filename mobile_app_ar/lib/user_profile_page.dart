@@ -80,14 +80,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
         automaticallyImplyLeading: false,
         title: Text('User Profile'),
         actions: [
-          ElevatedButton(
+          TextButton(
             onPressed: _logout,
             child: Text(
               'Logout',
               style: TextStyle(color: Colors.white),
             ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color.fromARGB(255, 165, 163, 163), // Button color
+            style: TextButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
             ),
           ),
         ],
@@ -98,34 +99,30 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ? Center(child: Text('Error: $_error'))
               : SingleChildScrollView(
                   padding: EdgeInsets.all(16.0),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        _buildProfileImage(),
-                        SizedBox(height: 20),
-                        _buildUserInfo(),
-                        SizedBox(height: 20),
-                        _buildEditProfileButton(),
-                      ],
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(child: _buildProfileImage()),
+                      SizedBox(height: 20),
+                      _buildUserInfo(),
+                      SizedBox(height: 20),
+                      Center(child: _buildEditProfileButton()),
+                    ],
                   ),
                 ),
     );
   }
 
   Widget _buildProfileImage() {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 50,
-          backgroundImage: userData['pfp'] != null
-              ? NetworkImage(userData['pfp'])
-              : null,
-          child: userData['pfp'] == null
-              ? Icon(Icons.person, size: 50)
-              : null,
-        ),
-      ],
+    return CircleAvatar(
+      radius: 50,
+      backgroundImage: userData['pfp'] != null
+          ? NetworkImage(userData['pfp'])
+          : null,
+      child: userData['pfp'] == null
+          ? Icon(Icons.person, size: 50)
+          : null,
+      backgroundColor: Colors.grey.shade200,
     );
   }
 
@@ -133,14 +130,24 @@ class _UserProfilePageState extends State<UserProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('First Name: ${userData['first_name']}'),
-        Text('Last Name: ${userData['last_name']}'),
-        Text('Middle Initial: ${userData['middle_initial']}'),
-        Text('Email: ${userData['email']}'),
-        Text('Cell Number: ${userData['cell_number']}'),
-        Text('Age: ${userData['age']}'),
-        Text('Sex: ${userData['sex']}'),
+        _buildUserInfoTile('First Name', userData['first_name']),
+        _buildUserInfoTile('Last Name', userData['last_name']),
+        _buildUserInfoTile('Middle Initial', userData['middle_initial']),
+        _buildUserInfoTile('Email', userData['email']),
+        _buildUserInfoTile('Cell Number', userData['cell_number']),
+        _buildUserInfoTile('Age', userData['age']),
+        _buildUserInfoTile('Sex', userData['sex']),
       ],
+    );
+  }
+
+  Widget _buildUserInfoTile(String title, dynamic value) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 4.0),
+      child: ListTile(
+        title: Text(title),
+        subtitle: Text(value?.toString() ?? 'N/A'),
+      ),
     );
   }
 

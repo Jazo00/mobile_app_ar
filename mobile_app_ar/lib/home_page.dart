@@ -224,7 +224,7 @@ class HomePageContent extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             const Text(
-              'Augmented Reality (AR) is an interactive experience where digital information is overlaid onto the real world. AR can be experienced through various devices, including smartphones, tablets, and AR glasses.',
+              'Augmented Reality (AR) is an interactive experience where digital information is overlaid onto the real world. AR can be experienced through various devices, including smartphones, and tablets.',
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 20),
@@ -234,7 +234,7 @@ class HomePageContent extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             const Text(
-              'The AR capability enhances user experience by overlaying digital information on the real world, providing informative content about livestock in an interactive and engaging way. This feature could include information about livestock breeds, care, feeding, and other relevant topics. Our system combines augmented reality (AR) technology with an information system for livestock and a marketplace for listing livestock for sale. Users can view livestock information in AR, access informative resources about livestock, and list livestock for sale. Transactions are not handled by the system; users manage transactions independently, and the system allows them to mark livestock as available for sale.',
+              'The AR capability enhances user experience by overlaying digital information on the real world, providing informative content about livestock in an interactive and engaging way. This feature could include information about livestock breeds, care, feeding, and other relevant topics. Our system combines augmented reality (AR) technology with an information system for livestock Users can view informative and specific livestock information in AR. ',
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 20),

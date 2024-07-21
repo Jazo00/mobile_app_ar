@@ -25,44 +25,73 @@ class LivestockDetailPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(  // Center the entire column
+        child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
             children: [
               // Display the larger image centered above the information
-              Image.asset(
-                livestock['image_path'] ?? 'lib/assets/chicken.png',
-                width: 200,
-                height: 200,
-                fit: BoxFit.cover,
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey, width: 2.0),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.asset(
+                    livestock['image_path'] ?? 'lib/assets/chicken.png',
+                    width: 200,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               Text(
                 livestock['livestock_name'] ?? 'Unknown',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Breed: ${livestock['livestock_breed'] ?? 'Unknown'}',
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 18, color: Colors.grey[700]),
               ),
               const SizedBox(height: 8),
               Text(
                 livestock['livestock_information'] ?? 'No information available',
-                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
                 onPressed: () {
                   // This button does nothing for now
                 },
-                child: Text('View in AR'),
+                child: Text(
+                  'View in AR',
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
                 onPressed: () {
                   final livestockId = livestock['livestock_id'];
                   print('Livestock ID: $livestockId'); // Debugging log for livestock_id
@@ -82,7 +111,10 @@ class LivestockDetailPage extends StatelessWidget {
                     );
                   }
                 },
-                child: Text('Standards for a Healthy Life Cycle'),
+                child: Text(
+                  'Standards for a Healthy Life Cycle',
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
             ],
           ),

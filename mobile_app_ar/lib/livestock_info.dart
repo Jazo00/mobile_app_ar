@@ -82,28 +82,35 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
                         margin: EdgeInsets.only(
                           left: 8.0,
                           right: 8.0,
-                          top: index == 0 ? 0.0 : 4.0,
+                          top: index == 0 ? 8.0 : 4.0,
                           bottom: 4.0,
                         ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        elevation: 5,
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Display the larger image
-                              Image.asset(
-                                'lib/assets/chicken.png',
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    'lib/assets/chicken.png',
-                                    width: 100,
-                                    height: 100,
-                                    fit: BoxFit.cover,
-                                  );
-                                },
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image.asset(
+                                  'lib/assets/chicken.png',
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'lib/assets/chicken.png',
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ),
                               ),
                               const SizedBox(width: 16),
                               // Display the livestock details
@@ -121,12 +128,12 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
                                     const SizedBox(height: 8),
                                     Text(
                                       'Breed: ${livestock['livestock_breed'] ?? 'Unknown'}',
-                                      style: TextStyle(fontSize: 18),
+                                      style: TextStyle(fontSize: 18, color: Colors.grey[700]),
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
                                       livestock['livestock_information'] ?? 'No information available',
-                                      style: TextStyle(fontSize: 16),
+                                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                                     ),
                                   ],
                                 ),
