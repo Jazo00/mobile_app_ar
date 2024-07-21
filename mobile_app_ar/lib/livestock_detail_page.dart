@@ -37,8 +37,8 @@ class LivestockDetailPage extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
-                  child: Image.asset(
-                    livestock['image_path'] ?? 'lib/assets/chicken.png',
+                  child: Image.network(
+                    livestock['livestock_image'] ?? 'https://via.placeholder.com/200', // Use the livestock_image field
                     width: 200,
                     height: 200,
                     fit: BoxFit.cover,
