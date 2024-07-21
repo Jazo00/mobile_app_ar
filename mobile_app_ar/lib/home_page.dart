@@ -1,4 +1,5 @@
 // File: home_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'livestock_info.dart';
@@ -95,7 +96,10 @@ class _HomePageState extends State<HomePage> {
   Widget _getPage(int index) {
     switch (index) {
       case 0:
-        return HomePageContent(onLogin: () => _showLoginPrompt());
+        return HomePageContent(
+          onLogin: () => _showLoginPrompt(),
+          isLoggedIn: _isLoggedIn,
+        );
       case 1:
         return LivestockInfoPage();
       case 2:
@@ -107,7 +111,10 @@ class _HomePageState extends State<HomePage> {
           );
         }
       default:
-        return HomePageContent(onLogin: () => _showLoginPrompt());
+        return HomePageContent(
+          onLogin: () => _showLoginPrompt(),
+          isLoggedIn: _isLoggedIn,
+        );
     }
   }
 
@@ -188,8 +195,9 @@ class _HomePageState extends State<HomePage> {
 
 class HomePageContent extends StatelessWidget {
   final VoidCallback onLogin;
+  final bool isLoggedIn;
 
-  HomePageContent({required this.onLogin});
+  HomePageContent({required this.onLogin, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -230,10 +238,11 @@ class HomePageContent extends StatelessWidget {
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: onLogin,
-              child: Text('Login'),
-            ),
+            if (!isLoggedIn)
+              ElevatedButton(
+                onPressed: onLogin,
+                child: Text('Login'),
+              ),
           ],
         ),
       ),

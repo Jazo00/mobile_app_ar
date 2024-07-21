@@ -25,65 +25,67 @@ class LivestockDetailPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
-          children: [
-            // Display the larger image centered above the information
-            Image.asset(
-              livestock['image_path'] ?? 'lib/assets/chicken.png',
-              width: 200,
-              height: 200,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              livestock['livestock_name'] ?? 'Unknown',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+        child: Center(  // Center the entire column
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally
+            children: [
+              // Display the larger image centered above the information
+              Image.asset(
+                livestock['image_path'] ?? 'lib/assets/chicken.png',
+                width: 200,
+                height: 200,
+                fit: BoxFit.cover,
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Breed: ${livestock['livestock_breed'] ?? 'Unknown'}',
-              style: TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              livestock['livestock_information'] ?? 'No information available',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // This button does nothing for now
-              },
-              child: Text('View in AR'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                final livestockId = livestock['livestock_id'];
-                print('Livestock ID: $livestockId'); // Debugging log for livestock_id
-                if (livestockId != null) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StandardsPage(
-                        livestockId: livestockId,  // Pass livestock ID
+              const SizedBox(height: 16),
+              Text(
+                livestock['livestock_name'] ?? 'Unknown',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Breed: ${livestock['livestock_breed'] ?? 'Unknown'}',
+                style: TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                livestock['livestock_information'] ?? 'No information available',
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  // This button does nothing for now
+                },
+                child: Text('View in AR'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  final livestockId = livestock['livestock_id'];
+                  print('Livestock ID: $livestockId'); // Debugging log for livestock_id
+                  if (livestockId != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => StandardsPage(
+                          livestockId: livestockId,  // Pass livestock ID
+                        ),
                       ),
-                    ),
-                  );
-                } else {
-                  // Handle case where livestockId is null
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: Livestock ID is null')),
-                  );
-                }
-              },
-              child: Text('Standards for a Healthy Life Cycle'),
-            ),
-          ],
+                    );
+                  } else {
+                    // Handle case where livestockId is null
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: Livestock ID is null')),
+                    );
+                  }
+                },
+                child: Text('Standards for a Healthy Life Cycle'),
+              ),
+            ],
+          ),
         ),
       ),
     );

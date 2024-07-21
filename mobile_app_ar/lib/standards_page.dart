@@ -86,6 +86,8 @@ class _StandardsPageState extends State<StandardsPage> {
                               Text('Age (months): ${_getIntValue(item['ls_age_months'])}'),
                               const SizedBox(height: 8),
                               Text('Age (years): ${_getIntValue(item['ls_age_years'])}'),
+                              const SizedBox(height: 8),
+                              Text('Ideal Living Conditions: ${_getStringValue(item['ideal_living_conditions'])}'),
                             ],
                           ),
                         ),
