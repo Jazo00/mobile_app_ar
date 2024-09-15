@@ -6,7 +6,7 @@ import 'standards_page.dart';  // Import the new Standards page
 class LivestockDetailPage extends StatelessWidget {
   final Map<String, dynamic> livestock;
 
-  LivestockDetailPage({required this.livestock});
+  const LivestockDetailPage({super.key, required this.livestock});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class LivestockDetailPage extends StatelessWidget {
         automaticallyImplyLeading: false, // Disable automatic back button
         title: Text(livestock['livestock_name'] ?? 'Livestock Detail'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -48,7 +48,7 @@ class LivestockDetailPage extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 livestock['livestock_name'] ?? 'Unknown',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
@@ -69,7 +69,7 @@ class LivestockDetailPage extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
@@ -77,7 +77,7 @@ class LivestockDetailPage extends StatelessWidget {
                 onPressed: () {
                   // This button does nothing for now
                 },
-                child: Text(
+                child: const Text(
                   'View in AR',
                   style: TextStyle(fontSize: 16),
                 ),
@@ -87,7 +87,7 @@ class LivestockDetailPage extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
@@ -107,11 +107,11 @@ class LivestockDetailPage extends StatelessWidget {
                   } else {
                     // Handle case where livestockId is null
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: Livestock ID is null')),
+                      const SnackBar(content: Text('Error: Livestock ID is null')),
                     );
                   }
                 },
-                child: Text(
+                child: const Text(
                   'Standards for a Healthy Life Cycle',
                   style: TextStyle(fontSize: 16),
                 ),

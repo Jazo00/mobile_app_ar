@@ -7,6 +7,8 @@ import 'user_profile_page.dart';
 import 'login_and_signup_page.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -58,11 +60,11 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Login Required'),
-          content: Text('Please login or create an account to access this feature.'),
+          title: const Text('Login Required'),
+          content: const Text('Please login or create an account to access this feature.'),
           actions: <Widget>[
             TextButton(
-              child: Text('Login'),
+              child: const Text('Login'),
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.push(
@@ -82,7 +84,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -106,7 +108,7 @@ class _HomePageState extends State<HomePage> {
         if (userId != null) {
           return UserProfilePage(isLoggedIn: _isLoggedIn, userId: userId!);
         } else {
-          return Center(
+          return const Center(
             child: Text('User ID is null. Please log in again.'),
           );
         }
@@ -197,7 +199,7 @@ class HomePageContent extends StatelessWidget {
   final VoidCallback onLogin;
   final bool isLoggedIn;
 
-  HomePageContent({required this.onLogin, required this.isLoggedIn});
+  const HomePageContent({super.key, required this.onLogin, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +243,7 @@ class HomePageContent extends StatelessWidget {
             if (!isLoggedIn)
               ElevatedButton(
                 onPressed: onLogin,
-                child: Text('Login'),
+                child: const Text('Login'),
               ),
           ],
         ),

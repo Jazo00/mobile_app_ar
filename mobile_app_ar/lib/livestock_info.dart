@@ -5,6 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'livestock_detail_page.dart';
 
 class LivestockInfoPage extends StatefulWidget {
+  const LivestockInfoPage({super.key});
+
   @override
   _LivestockInfoPageState createState() => _LivestockInfoPageState();
 }
@@ -63,13 +65,13 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(17.0),
+        preferredSize: const Size.fromHeight(17.0),
         child: AppBar(
           automaticallyImplyLeading: false,
         ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(child: Text('Error: $_error'))
               : ListView.builder(
@@ -120,7 +122,7 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
                                   children: [
                                     Text(
                                       livestock['livestock_name'] ?? 'Unknown',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold,
                                       ),

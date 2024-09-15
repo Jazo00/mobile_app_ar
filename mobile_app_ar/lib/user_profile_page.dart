@@ -7,7 +7,7 @@ class UserProfilePage extends StatefulWidget {
   final bool isLoggedIn;
   final String userId;
 
-  UserProfilePage({required this.isLoggedIn, required this.userId});
+  const UserProfilePage({super.key, required this.isLoggedIn, required this.userId});
 
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
@@ -78,34 +78,34 @@ class _UserProfilePageState extends State<UserProfilePage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text('User Profile'),
+        title: const Text('User Profile'),
         actions: [
           TextButton(
             onPressed: _logout,
+            style: TextButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            ),
             child: Text(
               'Logout',
               style: TextStyle(color: Colors.white),
-            ),
-            style: TextButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
             ),
           ),
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(child: Text('Error: $_error'))
               : SingleChildScrollView(
-                  padding: EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(child: _buildProfileImage()),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       _buildUserInfo(),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Center(child: _buildEditProfileButton()),
                     ],
                   ),
@@ -119,10 +119,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
       backgroundImage: userData['pfp'] != null
           ? NetworkImage(userData['pfp'])
           : null,
+      backgroundColor: Colors.grey.shade200,
       child: userData['pfp'] == null
           ? Icon(Icons.person, size: 50)
           : null,
-      backgroundColor: Colors.grey.shade200,
     );
   }
 
@@ -143,7 +143,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Widget _buildUserInfoTile(String title, dynamic value) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 4.0),
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
       child: ListTile(
         title: Text(title),
         subtitle: Text(value?.toString() ?? 'N/A'),
@@ -154,7 +154,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget _buildEditProfileButton() {
     return ElevatedButton(
       onPressed: _navigateToEditProfile,
-      child: Text('Edit Profile'),
+      child: const Text('Edit Profile'),
     );
   }
 }

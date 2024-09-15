@@ -10,7 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class EditProfilePage extends StatefulWidget {
   final Map<String, dynamic> userData;
 
-  EditProfilePage({required this.userData});
+  const EditProfilePage({super.key, required this.userData});
 
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
@@ -23,6 +23,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _middleInitialController = TextEditingController();
   final TextEditingController _cellNumberController = TextEditingController();
   final TextEditingController _dateOfBirthController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController(); // Controller for email field
   String _selectedSex = 'Male';
   bool _isLoading = false;
   String? _error;
@@ -33,13 +34,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() {
+    // Load user data into controllers and state
     _firstNameController.text = widget.userData['first_name'] ?? '';
     _lastNameController.text = widget.userData['last_name'] ?? '';
     _middleInitialController.text = widget.userData['middle_initial'] ?? '';
     _cellNumberController.text = widget.userData['cell_number']?.replaceFirst('+63', '') ?? '';
+    _emailController.text = widget.userData['email'] ?? ''; // Initialize email field
     _selectedSex = widget.userData['sex'] ?? 'Male';
     _profileImageUrl = widget.userData['pfp'];
-    
+
     if (widget.userData['date_of_birth'] != null) {
       _selectedDateOfBirth = DateTime.parse(widget.userData['date_of_birth']);
       _dateOfBirthController.text = DateFormat('yyyy-MM-dd').format(_selectedDateOfBirth!);
@@ -60,7 +67,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     try {
       final bytes = await _selectedImage!.readAsBytes();
       final fileName = _selectedImage!.path.split('/').last;
-      final uuid = Uuid().v4();
+      final uuid = const Uuid().v4();
       final filePath = 'profile/$uuid-$fileName';
 
       final response = await client.storage
@@ -102,7 +109,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
       });
 
       try {
+        // Step 1: Update the email in Supabase Auth
+        if (_emailController.text != widget.userData['email']) {
+          final emailResponse = await client.auth.update(
+            UserAttributes(email: _emailController.text),
+          );
+          if (emailResponse.error != null) {
+            setState(() {
+              _error = 'Error updating email: ${emailResponse.error!.message}';
+            });
+            return;
+          } else {
+            print('Email updated successfully.');
+          }
+        }
+
+        // Step 2: Upload the profile image if changed
         await _uploadProfileImage();
+
+        // Step 3: Update the profile in the 'profiles' table
         final response = await client
             .from('profiles')
             .update({
@@ -114,6 +139,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               'age': _calculateAge(_selectedDateOfBirth!),
               'sex': _selectedSex,
               'pfp': _profileImageUrl,
+              'email': _emailController.text, // Save email change in the profile table
             })
             .eq('userId', widget.userData['userId'])
             .execute();
@@ -124,10 +150,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
           });
           print('Update error: ${response.error!.message}');
         } else {
-          print('Update response: ${response.data}');
-          Navigator.pop(context, widget.userData..['pfp'] = _profileImageUrl);
+          print('Profile updated successfully.');
+
+          // Fetch updated profile data
+          final updatedData = {
+            'first_name': _firstNameController.text,
+            'last_name': _lastNameController.text,
+            'middle_initial': _middleInitialController.text,
+            'cell_number': '+63${_cellNumberController.text}',
+            'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
+            'age': _calculateAge(_selectedDateOfBirth!),
+            'sex': _selectedSex,
+            'pfp': _profileImageUrl,
+            'email': _emailController.text,
+          };
+
+          // Return updated profile data to the previous screen
+          Navigator.pop(context, updatedData);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Profile updated successfully.')),
+            const SnackBar(content: Text('Profile updated successfully.')),
           );
         }
       } catch (error) {
@@ -143,6 +184,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
+  Future<void> _changePassword() async {
+    try {
+      await client.auth.api.resetPasswordForEmail(_emailController.text);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password reset email sent.')),
+      );
+    } catch (error) {
+      setState(() {
+        _error = 'Password reset error: $error';
+      });
+    }
+  }
+
   final _formKey = GlobalKey<FormState>();
 
   InputDecoration _inputDecoration(String labelText, {Widget? prefixIcon, Widget? suffixIcon}) {
@@ -153,11 +207,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8.0),
-        borderSide: BorderSide(color: Colors.green),
+        borderSide: const BorderSide(color: Colors.green),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8.0),
-        borderSide: BorderSide(color: Colors.grey),
+        borderSide: const BorderSide(color: Colors.grey),
       ),
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
@@ -183,7 +237,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Profile'),
+        title: const Text('Edit Profile'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -202,11 +256,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ? NetworkImage(_profileImageUrl!)
                             : null,
                     child: _selectedImage == null && _profileImageUrl == null
-                        ? Icon(Icons.person, size: 50)
+                        ? const Icon(Icons.person, size: 50)
                         : null,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _firstNameController,
                   decoration: _inputDecoration('First Name'),
@@ -284,10 +338,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  controller: _emailController,
+                  decoration: _inputDecoration('Email'), // Email field
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty || !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
                   controller: _dateOfBirthController,
                   readOnly: true,
                   onTap: () => _selectDate(context),
-                  decoration: _inputDecoration('Date of Birth', suffixIcon: Icon(Icons.calendar_today)),
+                  decoration: _inputDecoration('Date of Birth', suffixIcon: const Icon(Icons.calendar_today)),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your date of birth';
@@ -319,14 +385,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 const SizedBox(height: 20),
                 _isLoading
-                    ? CircularProgressIndicator()
+                    ? const CircularProgressIndicator()
                     : ElevatedButton(
                         onPressed: _saveProfile,
-                        child: Text('Save Changes'),
+                        child: const Text('Save Changes'),
                       ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _changePassword, // Button to trigger password reset email
+                  child: const Text('Change Password'),
+                ),
                 if (_error != null) ...[
                   const SizedBox(height: 20),
-                  Text('Error: $_error', style: TextStyle(color: Colors.red)),
+                  Text('Error: $_error', style: const TextStyle(color: Colors.red)),
                 ],
               ],
             ),

@@ -7,6 +7,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart'; // Import for date formatting
 
 class LoginAndSignupPage extends StatefulWidget {
+  const LoginAndSignupPage({super.key});
+
   @override
   _LoginAndSignupPageState createState() => _LoginAndSignupPageState();
 }
@@ -68,13 +70,13 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
           await prefs.setString('userId', response.user!.id);
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('Sign-up successful! Check email to verify account.'),
               duration: Duration(seconds: 2),
             ),
           );
 
-          Timer(Duration(seconds: 2), () {
+          Timer(const Duration(seconds: 2), () {
             Navigator.pushReplacementNamed(context, '/login');
           });
         } else {
@@ -114,11 +116,11 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
     final response = await _supabaseClient.auth.api.resetPasswordForEmail(_emailController.text);
     if (response.error == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Password reset email sent')),
+        const SnackBar(content: Text('Password reset email sent')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send password reset email')),
+        const SnackBar(content: Text('Failed to send password reset email')),
       );
     }
   }
@@ -131,11 +133,11 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8.0),
-        borderSide: BorderSide(color: Colors.green),
+        borderSide: const BorderSide(color: Colors.green),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8.0),
-        borderSide: BorderSide(color: Colors.grey),
+        borderSide: const BorderSide(color: Colors.grey),
       ),
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
@@ -202,11 +204,11 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: Colors.green),
+                      borderSide: const BorderSide(color: Colors.green),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: Colors.grey),
+                      borderSide: const BorderSide(color: Colors.grey),
                     ),
                   ),
                   maxLength: 1,
@@ -263,7 +265,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   controller: _dateOfBirthController,
                   readOnly: true,
                   onTap: () => _selectDate(context),
-                  decoration: _inputDecoration('Date of Birth', suffixIcon: Icon(Icons.calendar_today)),
+                  decoration: _inputDecoration('Date of Birth', suffixIcon: const Icon(Icons.calendar_today)),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your date of birth';

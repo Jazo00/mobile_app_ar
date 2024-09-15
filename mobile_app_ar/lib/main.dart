@@ -16,6 +16,8 @@ void main() async {
 }
 
 class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,6 +36,8 @@ class MainApp extends StatelessWidget {
 }
 
 class StartupScreen extends StatefulWidget {
+  const StartupScreen({super.key});
+
   @override
   _StartupScreenState createState() => _StartupScreenState();
 }

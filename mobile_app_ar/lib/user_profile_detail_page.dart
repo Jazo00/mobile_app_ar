@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class UserProfileDetailPage extends StatefulWidget {
   final String userId;
 
-  UserProfileDetailPage({required this.userId});
+  const UserProfileDetailPage({super.key, required this.userId});
 
   @override
   _UserProfileDetailPageState createState() => _UserProfileDetailPageState();
@@ -47,19 +47,19 @@ class _UserProfileDetailPageState extends State<UserProfileDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Profile'),
+        title: const Text('User Profile'),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(child: Text('Error: $_error'))
               : SingleChildScrollView(
-                  padding: EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Center(
                     child: Column(
                       children: [
                         _buildProfileImage(),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         _buildUserInfo(),
                       ],
                     ),
@@ -77,7 +77,7 @@ class _UserProfileDetailPageState extends State<UserProfileDetailPage> {
               ? NetworkImage(userData['profile_image'])
               : null,
           child: userData['profile_image'] == null
-              ? Icon(Icons.person, size: 50)
+              ? const Icon(Icons.person, size: 50)
               : null,
         ),
       ],

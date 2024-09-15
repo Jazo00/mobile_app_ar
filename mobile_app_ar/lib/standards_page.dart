@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class StandardsPage extends StatefulWidget {
   final String livestockId;
 
-  StandardsPage({required this.livestockId});
+  const StandardsPage({super.key, required this.livestockId});
 
   @override
   _StandardsPageState createState() => _StandardsPageState();
@@ -56,14 +56,14 @@ class _StandardsPageState extends State<StandardsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Standards for a Healthy Life Cycle'),
+        title: const Text('Standards for a Healthy Life Cycle'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : _livestockHealthData.isEmpty
-                ? Center(child: Text('No data available'))
+                ? const Center(child: Text('No data available'))
                 : ListView.builder(
                     itemCount: _livestockHealthData.length,
                     itemBuilder: (context, index) {
@@ -109,12 +109,12 @@ class _StandardsPageState extends State<StandardsPage> {
         const SizedBox(width: 8),
         Text(
           '$label: ',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         Expanded(
           child: Text(
             value,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
         ),
       ],
