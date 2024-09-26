@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
+  flutter_unity_widget
   url_launcher_windows
 )
 
