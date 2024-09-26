@@ -101,88 +101,98 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return age;
   }
 
-  Future<void> _saveProfile() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-        _error = null;
-      });
+ Future<void> _saveProfile() async {
+  if (_formKey.currentState!.validate()) {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
-      try {
-        // Step 1: Update the email in Supabase Auth
-        if (_emailController.text != widget.userData['email']) {
-          final emailResponse = await client.auth.update(
-            UserAttributes(email: _emailController.text),
-          );
-          if (emailResponse.error != null) {
-            setState(() {
-              _error = 'Error updating email: ${emailResponse.error!.message}';
-            });
-            return;
-          } else {
-            print('Email updated successfully.');
-          }
-        }
+    try {
+      // Step 1: Update the email in Supabase Auth if the email has changed
+      if (_emailController.text != widget.userData['email']) {
+        final emailResponse = await client.auth.update(
+          UserAttributes(email: _emailController.text),
+        );
 
-        // Step 2: Upload the profile image if changed
-        await _uploadProfileImage();
-
-        // Step 3: Update the profile in the 'profiles' table
-        final response = await client
-            .from('profiles')
-            .update({
-              'first_name': _firstNameController.text,
-              'last_name': _lastNameController.text,
-              'middle_initial': _middleInitialController.text.toUpperCase(),
-              'cell_number': '+63${_cellNumberController.text}',
-              'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
-              'age': _calculateAge(_selectedDateOfBirth!),
-              'sex': _selectedSex,
-              'pfp': _profileImageUrl,
-              'email': _emailController.text, // Save email change in the profile table
-            })
-            .eq('userId', widget.userData['userId'])
-            .execute();
-
-        if (response.error != null) {
+        if (emailResponse.error != null) {
           setState(() {
-            _error = response.error!.message;
+            _error = 'Error updating email: ${emailResponse.error!.message}';
           });
-          print('Update error: ${response.error!.message}');
+          return;
         } else {
-          print('Profile updated successfully.');
+          // Notify user to verify the new email
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please verify your new email address by clicking the link sent to your email.'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+          print('Email updated successfully but pending verification.');
+        }
+      }
 
-          // Fetch updated profile data
-          final updatedData = {
+      // Step 2: Upload the profile image if changed
+      await _uploadProfileImage();
+
+      // Step 3: Update the profile in the 'profiles' table
+      final response = await client
+          .from('profiles')
+          .update({
             'first_name': _firstNameController.text,
             'last_name': _lastNameController.text,
-            'middle_initial': _middleInitialController.text,
+            'middle_initial': _middleInitialController.text.toUpperCase(),
             'cell_number': '+63${_cellNumberController.text}',
             'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
             'age': _calculateAge(_selectedDateOfBirth!),
             'sex': _selectedSex,
             'pfp': _profileImageUrl,
-            'email': _emailController.text,
-          };
+            'email': _emailController.text, // Save the updated email
+          })
+          .eq('userId', widget.userData['userId'])
+          .execute();
 
-          // Return updated profile data to the previous screen
-          Navigator.pop(context, updatedData);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profile updated successfully.')),
-          );
-        }
-      } catch (error) {
+      if (response.error != null) {
         setState(() {
-          _error = error.toString();
+          _error = response.error!.message;
         });
-        print('Catch error: $error');
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
+        print('Update error: ${response.error!.message}');
+      } else {
+        print('Profile updated successfully.');
+
+        // Fetch updated profile data
+        final updatedData = {
+          'first_name': _firstNameController.text,
+          'last_name': _lastNameController.text,
+          'middle_initial': _middleInitialController.text,
+          'cell_number': '+63${_cellNumberController.text}',
+          'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
+          'age': _calculateAge(_selectedDateOfBirth!),
+          'sex': _selectedSex,
+          'pfp': _profileImageUrl,
+          'email': _emailController.text,
+        };
+
+        // Return updated profile data to the previous screen
+        Navigator.pop(context, updatedData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully.')),
+        );
       }
+    } catch (error) {
+      setState(() {
+        _error = error.toString();
+      });
+      print('Catch error: $error');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+}
+
+
 
   Future<void> _changePassword() async {
     try {

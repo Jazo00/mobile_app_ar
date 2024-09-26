@@ -17,8 +17,10 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
   bool isLogin = true;
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
+  bool _termsAccepted = false; // New boolean to track acceptance of Terms
   final _formKey = GlobalKey<FormState>();
   final SupabaseClient _supabaseClient = Supabase.instance.client;
+  late final GotrueSubscription _authStateSubscription; // GotrueSubscription for auth state
 
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -30,6 +32,27 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   String _selectedSex = 'Male';
   DateTime? _selectedDateOfBirth;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Subscribe to auth state changes
+    _authStateSubscription = _supabaseClient.auth.onAuthStateChange((event, session) {
+      if (event == AuthChangeEvent.signedIn) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else if (event == AuthChangeEvent.signedOut) {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // Unsubscribe to prevent memory leaks
+    _authStateSubscription.data?.unsubscribe();
+    super.dispose();
+  }
 
   void toggleFormType() {
     setState(() {
@@ -49,39 +72,50 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
 
   Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
+      if (!_termsAccepted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You must accept the Terms and Conditions')),
+        );
+        return;
+      }
+
       final response = await _supabaseClient.auth.signUp(
         _emailController.text,
         _passwordController.text,
       );
       if (response.error == null) {
-        final insertResponse = await _supabaseClient.from('profiles').insert({
-          'first_name': _firstNameController.text,
-          'last_name': _lastNameController.text,
-          'middle_initial': _middleInitialController.text,
-          'email': _emailController.text,
-          'cell_number': '+63${_cellNumberController.text}',
-          'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
-          'age': _calculateAge(_selectedDateOfBirth!),
-          'sex': _selectedSex,
-        }).execute();
+        final user = response.user;
 
-        if (insertResponse.error == null) {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('userId', response.user!.id);
+        if (user != null) {
+          final insertResponse = await _supabaseClient.from('profiles').insert({
+            'first_name': _firstNameController.text,
+            'last_name': _lastNameController.text,
+            'middle_initial': _middleInitialController.text,
+            'email': _emailController.text,
+            'cell_number': '+63${_cellNumberController.text}',
+            'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
+            'age': _calculateAge(_selectedDateOfBirth!),
+            'sex': _selectedSex,
+          }).execute();
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Sign-up successful! Check email to verify account.'),
-              duration: Duration(seconds: 2),
-            ),
-          );
+          if (insertResponse.error == null) {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString('userId', user.id);
 
-          Timer(const Duration(seconds: 2), () {
-            Navigator.pushReplacementNamed(context, '/login');
-          });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Sign-up successful! Check email to verify account.'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to save profile data: ${insertResponse.error!.message}')),
+            );
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save profile data: ${insertResponse.error!.message}')),
+            const SnackBar(content: Text('Sign-up failed: No user returned')),
           );
         }
       } else {
@@ -351,6 +385,67 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   },
                 ),
                 const SizedBox(height: 16),
+                // Terms and Conditions Checkbox
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _termsAccepted,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _termsAccepted = value ?? false;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          // Show the Terms and Conditions dialog
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text('Terms and Conditions'),
+                                content: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('We are collecting your personal data for the purpose of registration only. By proceeding, you agree to our data privacy terms.'),
+                                      const SizedBox(height: 10),
+                                      const Text('1. Data Collection:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      const Text('We collect your name, email, birthday, and contact information.'),
+                                      const SizedBox(height: 10),
+                                      const Text('2. Data Usage:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      const Text('Your data is used for account creation, security, and service updates.'),
+                                      const SizedBox(height: 10),
+                                      const Text('3. Data Protection:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      const Text('We employ encryption and security measures to safeguard your data.'),
+                                      const SizedBox(height: 10),
+                                      const Text('4. Retention & Rights:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      const Text('You can modify or delete your data, and request data deletion when no longer needed.'),
+                                    ],
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Close'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: const Text(
+                          'I accept the Terms and Conditions',
+                          style: TextStyle(decoration: TextDecoration.underline),
+                        ),
+                      )
+                      ,
+                    ),
+                  ],
+                ),
                 ElevatedButton(
                   onPressed: _signUp,
                   child: const Text('Sign Up'),
