@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'home_page.dart';
-import 'login_and_signup_page.dart'; 
-
+import 'login_and_signup_page.dart';
+import 'edit_profile_page.dart';  // Add this import
+import 'change_password_page.dart'; // Import for Change Password Page
+import 'change_email_page.dart';    // Import for Change Email Page
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Supabase with the correct URL and anon key
   await Supabase.initialize(
-    url: 'https://fbofelxkabyqngzbtuuo.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZib2ZlbHhrYWJ5cW5nemJ0dXVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTc3NjE0OTgsImV4cCI6MjAzMzMzNzQ5OH0.rexRkyI9f2-wOrqLkTx-tRU1ObpE_CKDOIWtW2hPRk8',
+    url: 'https://fbofelxkabyqngzbtuuo.supabase.co', // Your actual Supabase URL
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZib2ZlbHhrYWJ5cW5nemJ0dXVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTc3NjE0OTgsImV4cCI6MjAzMzMzNzQ5OH0.rexRkyI9f2-wOrqLkTx-tRU1ObpE_CKDOIWtW2hPRk8', // Your actual Supabase anonKey
     authCallbackUrlHostname: 'http://localhost:3000',
   );
+  
   runApp(MainApp());
 }
 
@@ -29,7 +34,10 @@ class MainApp extends StatelessWidget {
       routes: {
         '/': (context) => StartupScreen(),
         '/home': (context) => HomePage(),
-        '/login_signup': (context) => LoginAndSignupPage()
+        '/login_signup': (context) => LoginAndSignupPage(),
+        '/edit-profile': (context) => EditProfilePage(userData: {}), // Example route for Edit Profile
+        '/change-password': (context) => ChangePasswordPage(),       // Route for Change Password
+        '/change-email': (context) => ChangeEmailPage(),             // Route for Change Email
       },
     );
   }
@@ -93,7 +101,7 @@ class _StartupScreenState extends State<StartupScreen> with TickerProviderStateM
                   children: <Widget>[
                     FadeTransition(
                       opacity: _fadeAnimation,
-                      child: Image.asset('lib/assets/logo_final.png'), 
+                      child: Image.asset('lib/assets/logo_final.png'),
                     ),
                     const SizedBox(height: 5),
                     FadeTransition(
@@ -128,17 +136,14 @@ class _StartupScreenState extends State<StartupScreen> with TickerProviderStateM
                       opacity: _fadeAnimation,
                       child: ElevatedButton(
                         style: ButtonStyle(
-                          textStyle: WidgetStateProperty.all(
+                          textStyle: MaterialStateProperty.all(
                             GoogleFonts.cardo(
                               textStyle: const TextStyle(fontSize: 16),
                             ),
                           ),
                         ),
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => HomePage()),
-                          );
+                          Navigator.pushNamed(context, '/home');
                         },
                         child: const Text('Let\'s get started!'),
                       ),

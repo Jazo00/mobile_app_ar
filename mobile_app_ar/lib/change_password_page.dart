@@ -25,9 +25,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       });
 
       try {
-        // Step 1: Authenticate the user with the old password
+        final email = _supabaseClient.auth.currentUser?.email;
+
+        if (email == null) {
+          setState(() {
+            _error = 'User not authenticated';
+          });
+          return;
+        }
+
+        // Step 1: Authenticate the user with the old password (sign them in again)
         final signInResponse = await _supabaseClient.auth.signIn(
-          email: _supabaseClient.auth.currentUser?.email,
+          email: email,
           password: _oldPasswordController.text,
         );
 
