@@ -17,6 +17,26 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   bool _isLoading = false;
   String? _error;
 
+  // SQL-based current password verification function
+ // SQL-based current password verification function
+Future<bool> _verifyCurrentPassword(String currentPassword) async {
+  // Execute the RPC call and wait for the response
+  final response = await _supabaseClient
+      .rpc('verify_user_password', params: {'password': currentPassword})
+      .execute();  // You need to use execute() to get the result
+
+  if (response.error != null) {
+    setState(() {
+      _error = 'Error verifying current password: ${response.error!.message}';
+    });
+    return false;
+  }
+
+  return response.data == true;  // Accessing the data from the response
+}
+
+
+  // Password update logic
   Future<void> _changePassword() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -34,13 +54,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           return;
         }
 
-        // Step 1: Authenticate the user with the old password (sign them in again)
-        final signInResponse = await _supabaseClient.auth.signIn(
-          email: email,
-          password: _oldPasswordController.text,
-        );
-
-        if (signInResponse.error != null) {
+        // Step 1: Verify the old password
+        final isPasswordValid = await _verifyCurrentPassword(_oldPasswordController.text);
+        if (!isPasswordValid) {
           setState(() {
             _error = 'Incorrect old password';
           });
@@ -123,7 +139,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a new password';
                   } else if (!RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$').hasMatch(value)) {
-                    return 'Password must be at least 8 characters, include\nan uppercase letter, a number, and a special character';
+                    return 'Password must be at least 8 characters, include an uppercase letter, a number, and a special character';
                   }
                   return null;
                 },
@@ -141,14 +157,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 },
               ),
               const SizedBox(height: 20),
-              if (_isLoading) ...[
-                const CircularProgressIndicator(),
-              ] else ...[
+              if (_isLoading)
+                const CircularProgressIndicator()
+              else
                 ElevatedButton(
                   onPressed: _changePassword,
                   child: const Text('Change Password'),
                 ),
-              ],
               if (_error != null) ...[
                 const SizedBox(height: 20),
                 Text('Error: $_error', style: const TextStyle(color: Colors.red)),

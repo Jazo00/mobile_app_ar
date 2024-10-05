@@ -266,39 +266,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 TextFormField(
                   controller: _firstNameController,
                   decoration: _inputDecoration('First Name'),
-                  inputFormatters: [
-                    LengthLimitingTextInputFormatter(20),
-                  ],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your first name';
-                    }
-                    return null;
-                  },
+                  enabled: false, // Make First Name read-only
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lastNameController,
                   decoration: _inputDecoration('Last Name'),
-                  inputFormatters: [
-                    LengthLimitingTextInputFormatter(20),
-                  ],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your last name';
-                    }
-                    return null;
-                  },
+                  enabled: false, // Make Last Name read-only
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _middleInitialController,
                   decoration: _inputDecoration('Middle Initial'),
-                  maxLength: 1,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z]')),
-                    UpperCaseTextFormatter(),
-                  ],
+                  enabled: false, // Make Middle Initial read-only
                 ),
                 const SizedBox(height: 16),
                 TextFormField(

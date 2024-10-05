@@ -137,7 +137,30 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('userId', response.user!.id);
 
-        Navigator.pushNamed(context, '/home');
+        // Show success dialog
+        showDialog(
+          context: context,
+          barrierDismissible: false, // Prevent dismiss by tapping outside
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Login Successful'),
+              content: const Text('You have successfully logged in. Redirecting to the home menu...'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Dismiss the dialog
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+
+        // Delay for 2 seconds, then navigate to home page
+        Future.delayed(const Duration(seconds: 2), () {
+          Navigator.pushReplacementNamed(context, '/home');
+        });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response.error!.message ?? 'An unknown error occurred')),
@@ -145,6 +168,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
       }
     }
   }
+
 
   Future<void> _forgotPassword() async {
     final response = await _supabaseClient.auth.api.resetPasswordForEmail(_emailController.text);
