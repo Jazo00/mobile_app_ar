@@ -55,8 +55,29 @@ class _UserProfilePageState extends State<UserProfilePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
     await prefs.remove('userId');
-    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    
+    // Show a dialog informing the user they are logged out
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Ensure they cannot dismiss it manually
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logged Out'),
+          content: const Text('Account logged out. You will now be redirected to the Home page.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Redirect to home page after dismissing the dialog
+                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
+
 
   Future<void> _navigateToEditProfile() async {
     final updatedUserData = await Navigator.push(
