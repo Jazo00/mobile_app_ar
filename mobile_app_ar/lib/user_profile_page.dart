@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'edit_profile_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UserProfilePage extends StatefulWidget {
   final bool isLoggedIn;
@@ -34,9 +34,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
           .eq('email', authUserEmail)
           .single()
           .execute();
+
       if (response.error == null) {
         setState(() {
           userData = response.data;
+
+          // Ensure userId is set in userData
+          userData['userId'] = widget.userId;
+
           _isLoading = false;
         });
       } else {
@@ -56,10 +61,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
     await prefs.setBool('isLoggedIn', false);
     await prefs.remove('userId');
     
-    // Show a dialog informing the user they are logged out
     showDialog(
       context: context,
-      barrierDismissible: false, // Ensure they cannot dismiss it manually
+      barrierDismissible: false, 
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Logged Out'),
@@ -67,7 +71,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
           actions: [
             TextButton(
               onPressed: () {
-                // Redirect to home page after dismissing the dialog
                 Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
               },
               child: const Text('OK'),
@@ -78,20 +81,37 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-
   Future<void> _navigateToEditProfile() async {
-    final updatedUserData = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditProfilePage(userData: userData),
-      ),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Profile'),
+          content: const Text('To edit your profile, you must use the website version of the app. You will now be redirected to the AgriLenz Website.'),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                final Uri url = Uri.parse('https://youtube.com'); // Replace with the actual URL
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Could not launch the website')),
+                  );
+                }
+              },
+              child: const Text('Proceed'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog if the user cancels
+              },
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
     );
-
-    if (updatedUserData != null) {
-      setState(() {
-        userData = updatedUserData;
-      });
-    }
   }
 
   @override
