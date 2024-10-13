@@ -17,10 +17,10 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
   bool isLogin = true;
   bool _passwordVisible = false;
   bool _confirmPasswordVisible = false;
-  bool _termsAccepted = false; // New boolean to track acceptance of Terms
+  bool _termsAccepted = false;
   final _formKey = GlobalKey<FormState>();
   final SupabaseClient _supabaseClient = Supabase.instance.client;
-  late final GotrueSubscription _authStateSubscription; // GotrueSubscription for auth state
+  late final GotrueSubscription _authStateSubscription;
 
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -36,8 +36,6 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
   @override
   void initState() {
     super.initState();
-
-    // Subscribe to auth state changes
     _authStateSubscription = _supabaseClient.auth.onAuthStateChange((event, session) {
       if (event == AuthChangeEvent.signedIn) {
         Navigator.pushReplacementNamed(context, '/home');
@@ -49,7 +47,6 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
 
   @override
   void dispose() {
-    // Unsubscribe to prevent memory leaks
     _authStateSubscription.data?.unsubscribe();
     super.dispose();
   }
@@ -83,42 +80,22 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         _emailController.text,
         _passwordController.text,
       );
+
       if (response.error == null) {
-        final user = response.user;
+        // Inform the user that an email verification has been sent
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sign-up successful! Check your email to verify your account.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
 
-        if (user != null) {
-          final insertResponse = await _supabaseClient.from('profiles').insert({
-            'first_name': _firstNameController.text,
-            'last_name': _lastNameController.text,
-            'middle_initial': _middleInitialController.text,
-            'email': _emailController.text,
-            'cell_number': '+63${_cellNumberController.text}',
-            'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
-            'age': _calculateAge(_selectedDateOfBirth!),
-            'sex': _selectedSex,
-          }).execute();
-
-          if (insertResponse.error == null) {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.setString('userId', user.id);
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Sign-up successful! Check email to verify account.'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to save profile data: ${insertResponse.error!.message}')),
-            );
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Sign-up failed: No user returned')),
-          );
-        }
+        // Redirect to login screen after showing the message
+        Future.delayed(const Duration(seconds: 2), () {
+          Navigator.pushReplacementNamed(context, '/login');
+        });
       } else {
+        // Handle the error if something went wrong during sign-up
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Sign-up failed: ${response.error?.message ?? 'Unknown error'}')),
         );
@@ -168,7 +145,6 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
       }
     }
   }
-
 
   Future<void> _forgotPassword() async {
     final response = await _supabaseClient.auth.api.resetPasswordForEmail(_emailController.text);

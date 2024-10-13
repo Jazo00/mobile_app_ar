@@ -91,7 +91,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           actions: [
             TextButton(
               onPressed: () async {
-                final Uri url = Uri.parse('https://youtube.com'); // Replace with the actual URL
+                final Uri url = Uri.parse('https://mango-stone-046047b10.5.azurestaticapps.net/login'); // Replace with the actual URL
                 if (await canLaunchUrl(url)) {
                   await launchUrl(url, mode: LaunchMode.externalApplication);
                 } else {
