@@ -76,6 +76,22 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         return;
       }
 
+      if (_selectedDateOfBirth == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select your date of birth')),
+        );
+        return;
+      }
+
+      // Calculate the user's age and ensure they are 18 or above
+      final int age = _calculateAge(_selectedDateOfBirth!);
+      if (age < 18) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You must be 18 or above to create an account')),
+        );
+        return;
+      }
+
       final response = await _supabaseClient.auth.signUp(
         _emailController.text,
         _passwordController.text,
@@ -90,7 +106,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
           'email': _emailController.text,
           'cell_number': '+63${_cellNumberController.text}',
           'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
-          'age': _calculateAge(_selectedDateOfBirth!),
+          'age': age,
           'sex': _selectedSex,
         }).execute();
 
@@ -98,17 +114,29 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('userId', response.user?.id ?? '');
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Sign-up successful! Check email to verify account.'),
-              duration: Duration(seconds: 2),
-            ),
+          // Show the dialog to inform the user about the verification email
+          showDialog(
+            context: context,
+            barrierDismissible: false, // Prevent dismiss by tapping outside
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Sign-up Successful'),
+                content: const Text(
+                  'A verification email has been sent. You will be redirected to the home screen shortly.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      // Redirect to home screen
+                      Navigator.pushReplacementNamed(context, '/home');
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
           );
-
-          // Redirect to login screen after showing the message
-          Future.delayed(const Duration(seconds: 2), () {
-            Navigator.pushReplacementNamed(context, '/login');
-          });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to save profile data: ${insertResponse.error!.message}')),
