@@ -82,20 +82,39 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
       );
 
       if (response.error == null) {
-        // Inform the user that an email verification has been sent
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sign-up successful! Check your email to verify your account.'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+        // Insert profile data immediately after successful sign-up
+        final insertResponse = await _supabaseClient.from('profiles').insert({
+          'first_name': _firstNameController.text,
+          'last_name': _lastNameController.text,
+          'middle_initial': _middleInitialController.text,
+          'email': _emailController.text,
+          'cell_number': '+63${_cellNumberController.text}',
+          'date_of_birth': _selectedDateOfBirth?.toIso8601String(),
+          'age': _calculateAge(_selectedDateOfBirth!),
+          'sex': _selectedSex,
+        }).execute();
 
-        // Redirect to login screen after showing the message
-        Future.delayed(const Duration(seconds: 2), () {
-          Navigator.pushReplacementNamed(context, '/login');
-        });
+        if (insertResponse.error == null) {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('userId', response.user?.id ?? '');
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sign-up successful! Check email to verify account.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+
+          // Redirect to login screen after showing the message
+          Future.delayed(const Duration(seconds: 2), () {
+            Navigator.pushReplacementNamed(context, '/login');
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save profile data: ${insertResponse.error!.message}')),
+          );
+        }
       } else {
-        // Handle the error if something went wrong during sign-up
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Sign-up failed: ${response.error?.message ?? 'Unknown error'}')),
         );
