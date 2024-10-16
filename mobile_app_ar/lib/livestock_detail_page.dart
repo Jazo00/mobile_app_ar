@@ -1,6 +1,7 @@
 // File: livestock_detail_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'standards_page.dart';  // Import the new Standards page
 
 class LivestockDetailPage extends StatelessWidget {
@@ -65,6 +66,8 @@ class LivestockDetailPage extends StatelessWidget {
                 style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
               const SizedBox(height: 20),
+
+              // Updated "View in AR" Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -74,15 +77,24 @@ class LivestockDetailPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                onPressed: () {
-                  // This button does nothing for now
+                onPressed: () async {
+                  final Uri unityAppUri = Uri.parse('agrilenzscheme://agrilenz');  // Custom URI for Unity app
+                  if (await canLaunchUrl(unityAppUri)) {
+                    await launchUrl(unityAppUri);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Could not launch AR view')),
+                    );
+                  }
                 },
                 child: const Text(
                   'View in AR',
                   style: TextStyle(fontSize: 16),
                 ),
               ),
+
               const SizedBox(height: 16),
+
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -100,7 +112,7 @@ class LivestockDetailPage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => StandardsPage(
-                          livestockId: livestockId,  // Pass livestock ID
+                          livestockId: livestockId, // Pass livestock ID
                         ),
                       ),
                     );
