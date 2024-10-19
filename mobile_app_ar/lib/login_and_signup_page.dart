@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';  // Import url_launcher for external redirects
 
 class LoginAndSignupPage extends StatefulWidget {
   const LoginAndSignupPage({super.key});
@@ -83,7 +84,6 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         return;
       }
 
-      // Calculate the user's age and ensure they are 18 or above
       final int age = _calculateAge(_selectedDateOfBirth!);
       if (age < 18) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -98,7 +98,6 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
       );
 
       if (response.error == null) {
-        // Insert profile data immediately after successful sign-up
         final insertResponse = await _supabaseClient.from('profiles').insert({
           'first_name': _firstNameController.text,
           'last_name': _lastNameController.text,
@@ -114,10 +113,9 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('userId', response.user?.id ?? '');
 
-          // Show the dialog to inform the user about the verification email
           showDialog(
             context: context,
-            barrierDismissible: false, // Prevent dismiss by tapping outside
+            barrierDismissible: false,
             builder: (BuildContext context) {
               return AlertDialog(
                 title: const Text('Sign-up Successful'),
@@ -128,7 +126,6 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
-                      // Redirect to home screen
                       Navigator.pushReplacementNamed(context, '/home');
                     },
                     child: const Text('OK'),
@@ -161,10 +158,9 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('userId', response.user!.id);
 
-        // Show success dialog
         showDialog(
           context: context,
-          barrierDismissible: false, // Prevent dismiss by tapping outside
+          barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Login Successful'),
@@ -172,7 +168,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Dismiss the dialog
+                    Navigator.of(context).pop();
                   },
                   child: const Text('OK'),
                 ),
@@ -181,28 +177,52 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
           },
         );
 
-        // Delay for 2 seconds, then navigate to home page
         Future.delayed(const Duration(seconds: 2), () {
           Navigator.pushReplacementNamed(context, '/home');
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.error!.message ?? 'An unknown error occurred')),
+          SnackBar(content: Text('Invalid login credentials. Please try again.')),
         );
       }
     }
   }
 
   Future<void> _forgotPassword() async {
-    final response = await _supabaseClient.auth.api.resetPasswordForEmail(_emailController.text);
-    if (response.error == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password reset email sent')),
-      );
+    // Show a confirmation dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Forgot Password'),
+          content: const Text(
+              'You will be redirected to the password reset page. Do you want to proceed?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _launchForgotPasswordUrl(); // Redirect to the external URL
+              },
+              child: const Text('Proceed'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _launchForgotPasswordUrl() async {
+    const String forgotPasswordUrl = 'https://mango-stone-046047b10.5.azurestaticapps.net/login';
+    if (await canLaunch(forgotPasswordUrl)) {
+      await launch(forgotPasswordUrl);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to send password reset email')),
-      );
+      throw 'Could not launch $forgotPasswordUrl';
     }
   }
 
@@ -400,8 +420,14 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 ),
                 obscureText: !_passwordVisible,
                 validator: (value) {
-                  if (value == null || !RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$').hasMatch(value)) {
-                    return 'Password must be at least 8 characters long, include an \n uppercase letter, a number, and a special character';
+                  if (isLogin) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                  } else {
+                    if (value == null || !RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$').hasMatch(value)) {
+                      return 'Password must be at least 8 characters long, include an \n uppercase letter, a number, and a special character';
+                    }
                   }
                   return null;
                 },
@@ -432,7 +458,6 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   },
                 ),
                 const SizedBox(height: 16),
-                // Terms and Conditions Checkbox
                 Row(
                   children: [
                     Checkbox(
@@ -446,7 +471,6 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          // Show the Terms and Conditions dialog
                           showDialog(
                             context: context,
                             builder: (context) {
@@ -488,8 +512,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                           'I accept the Terms and Conditions',
                           style: TextStyle(decoration: TextDecoration.underline),
                         ),
-                      )
-                      ,
+                      ),
                     ),
                   ],
                 ),
