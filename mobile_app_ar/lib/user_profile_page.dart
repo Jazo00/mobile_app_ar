@@ -5,9 +5,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class UserProfilePage extends StatefulWidget {
   final bool isLoggedIn;
-  final String userId;
+  final String? userId; // Keep userId as an optional parameter.
 
-  const UserProfilePage({super.key, required this.isLoggedIn, required this.userId});
+  const UserProfilePage({super.key, required this.isLoggedIn, this.userId});
 
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
@@ -18,14 +18,44 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Map<String, dynamic> userData = {};
   bool _isLoading = true;
   String? _error;
+  String? _userId; // Store userId locally in the state.
 
   @override
   void initState() {
     super.initState();
-    _fetchUserData();
+    _initializeUserId();
+  }
+
+  Future<void> _initializeUserId() async {
+    // If userId is passed via the widget, use it. Otherwise, fetch from SharedPreferences.
+    if (widget.userId != null) {
+      setState(() {
+        _userId = widget.userId;
+      });
+    } else {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? storedUserId = prefs.getString('userId');
+      print('Stored userId: $storedUserId'); // Log userId for debugging.
+      
+      if (storedUserId != null) {
+        setState(() {
+          _userId = storedUserId;
+        });
+      } else {
+        _logout(); // Logout if userId is completely missing.
+        return;
+      }
+    }
+
+    // Fetch user data once the userId is initialized.
+    await _fetchUserData();
   }
 
   Future<void> _fetchUserData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     final authUserEmail = client.auth.currentUser?.email;
     if (authUserEmail != null) {
       final response = await client
@@ -38,10 +68,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       if (response.error == null) {
         setState(() {
           userData = response.data;
-
-          // Ensure userId is set in userData
-          userData['userId'] = widget.userId;
-
+          userData['userId'] = _userId; // Use the locally initialized _userId.
           _isLoading = false;
         });
       } else {
@@ -51,7 +78,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
         });
       }
     } else {
-      print('No authenticated user found.');
+      setState(() {
+        _error = 'No authenticated user found.';
+        _isLoading = false;
+      });
     }
   }
 
@@ -91,7 +121,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           actions: [
             TextButton(
               onPressed: () async {
-                final Uri url = Uri.parse('https://mango-stone-046047b10.5.azurestaticapps.net/login'); // Replace with the actual URL
+                final Uri url = Uri.parse('https://mango-stone-046047b10.5.azurestaticapps.net/login');
                 if (await canLaunchUrl(url)) {
                   await launchUrl(url, mode: LaunchMode.externalApplication);
                 } else {
@@ -104,7 +134,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Dismiss the dialog if the user cancels
+                Navigator.of(context).pop(); // Dismiss dialog if user cancels.
               },
               child: const Text('Cancel'),
             ),
