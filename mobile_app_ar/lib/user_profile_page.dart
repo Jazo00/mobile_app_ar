@@ -1,11 +1,14 @@
+// File: user_profile_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:async'; // For retry mechanism
 
 class UserProfilePage extends StatefulWidget {
   final bool isLoggedIn;
-  final String? userId; 
+  final String? userId;
 
   const UserProfilePage({super.key, required this.isLoggedIn, this.userId});
 
@@ -19,47 +22,54 @@ class _UserProfilePageState extends State<UserProfilePage> {
   bool _isLoading = true;
   String? _error;
   String? _userId;
-  int _retryCount = 0;  // To handle retries
+  int _retryCount = 0; // To handle retries
 
   @override
   void initState() {
     super.initState();
-    _initializeUserId();
+    _checkInternetAndInitializeUserId();
+  }
+
+  /// Check internet connection before initializing User ID and fetching data
+  Future<void> _checkInternetAndInitializeUserId() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _error = 'No internet connection. Please check your connection and try again.';
+        _isLoading = false;
+      });
+    } else {
+      _initializeUserId();
+    }
   }
 
   /// Initialize the User ID from either widget or SharedPreferences
   Future<void> _initializeUserId() async {
     try {
-      print('Initializing UserId...');
       if (widget.userId != null) {
         setState(() {
           _userId = widget.userId;
-          print('UserId from widget: $_userId');
         });
       } else {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? storedUserId = prefs.getString('userId');
-        print('Stored userId from SharedPreferences: $storedUserId');
-        
+
         if (storedUserId != null) {
           setState(() {
             _userId = storedUserId;
           });
         } else {
-          print('UserId not found in SharedPreferences. Logging out.');
           _logout();
           return;
         }
       }
 
-      // Ensure we have a valid userId before fetching data
       if (_userId != null) {
-        await _fetchUserDataWithRetry();  // Retry mechanism for fetching data
+        await _fetchUserDataWithRetry(); // Retry mechanism for fetching data
       } else {
         setState(() {
           _isLoading = false;
           _error = "User ID could not be initialized.";
-          print('Error: User ID is null.');
         });
       }
     } catch (e) {
@@ -67,7 +77,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
         _error = 'Failed to initialize User ID. Error: $e';
         _isLoading = false;
       });
-      print('Error initializing User ID: $e');
     }
   }
 
@@ -78,20 +87,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
       try {
         await _fetchUserData();
         if (_error == null) {
-          return;  // Exit retry loop if successful
+          return; // Exit retry loop if successful
         }
       } catch (e) {
         print('Retry #${_retryCount + 1} failed: $e');
       }
       _retryCount++;
-      await Future.delayed(Duration(seconds: 2));  // Delay before retrying
+      await Future.delayed(Duration(seconds: 2)); // Delay before retrying
     }
 
     setState(() {
       _error = 'Failed to fetch user data after $maxRetries retries.';
       _isLoading = false;
     });
-    print('Exceeded max retries for fetching user data.');
   }
 
   /// Fetch the user data from Supabase
@@ -101,13 +109,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
         _isLoading = true;
       });
 
-      // Check if Supabase current user is authenticated
       final currentUser = client.auth.currentUser;
       if (currentUser == null) {
         throw Exception('No authenticated Supabase user found.');
       }
 
-      print('Fetching user profile data for email: ${currentUser.email}');
       final response = await client
           .from('profiles')
           .select()
@@ -121,18 +127,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
       setState(() {
         userData = response.data;
-        userData['userId'] = _userId;  // Include the userId from state
+        userData['userId'] = _userId; // Include the userId from state
         _isLoading = false;
       });
-      print('User data successfully fetched: $userData');
 
     } catch (e) {
       setState(() {
         _error = 'Failed to fetch user data. Error: $e';
         _isLoading = false;
       });
-      print('Error fetching user data: $e');
-      throw e;  // Re-throw error to trigger retry mechanism
+      throw e; // Re-throw error to trigger retry mechanism
     }
   }
 
@@ -143,10 +147,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', false);
       await prefs.remove('userId');
-      
+
       showDialog(
         context: context,
-        barrierDismissible: false, 
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Logged Out'),
@@ -209,7 +213,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  /// Builds the profile image
   Widget _buildProfileImage() {
     return CircleAvatar(
       radius: 50,
@@ -217,13 +220,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
           ? NetworkImage(userData['pfp'])
           : null,
       backgroundColor: Colors.grey.shade200,
-      child: userData['pfp'] == null
-          ? Icon(Icons.person, size: 50)
-          : null,
+      child: userData['pfp'] == null ? Icon(Icons.person, size: 50) : null,
     );
   }
 
-  /// Builds the user info cards
   Widget _buildUserInfo() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,7 +239,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  /// Builds a user info tile
   Widget _buildUserInfoTile(String title, dynamic value) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -250,7 +249,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-  /// Builds the "Edit Profile" button
   Widget _buildEditProfileButton() {
     return ElevatedButton(
       onPressed: () {
