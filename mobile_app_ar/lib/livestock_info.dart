@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'livestock_detail_page.dart';
 
 class LivestockInfoPage extends StatefulWidget {
@@ -20,7 +21,19 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
   @override
   void initState() {
     super.initState();
-    _fetchAllLivestock();
+    _checkInternetAndFetch();
+  }
+
+  Future<void> _checkInternetAndFetch() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      setState(() {
+        _error = 'No internet connection. Please check your connection and try again.';
+        _isLoading = false;
+      });
+    } else {
+      _fetchAllLivestock();
+    }
   }
 
   Future<void> _fetchAllLivestock() async {
@@ -52,7 +65,6 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
   }
 
   void _navigateToDetail(Map<String, dynamic> livestock) {
-    print('Navigating to detail with livestock: $livestock'); // Debugging log
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -96,7 +108,6 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Display the larger image
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(8.0),
                                 child: Image.network(
@@ -115,7 +126,6 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
                                 ),
                               ),
                               const SizedBox(width: 16),
-                              // Display the livestock details
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,

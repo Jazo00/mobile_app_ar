@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'dart:async'; // For retry mechanism
 
 class UserProfilePage extends StatefulWidget {
   final bool isLoggedIn;
-  final String? userId; // Keep userId as an optional parameter.
+  final String? userId; 
 
   const UserProfilePage({super.key, required this.isLoggedIn, this.userId});
 
@@ -18,7 +18,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Map<String, dynamic> userData = {};
   bool _isLoading = true;
   String? _error;
-  String? _userId; // Store userId locally in the state.
+  String? _userId;
+  int _retryCount = 0;  // To handle retries
 
   @override
   void initState() {
@@ -26,122 +27,146 @@ class _UserProfilePageState extends State<UserProfilePage> {
     _initializeUserId();
   }
 
+  /// Initialize the User ID from either widget or SharedPreferences
   Future<void> _initializeUserId() async {
-    // If userId is passed via the widget, use it. Otherwise, fetch from SharedPreferences.
-    if (widget.userId != null) {
-      setState(() {
-        _userId = widget.userId;
-      });
-    } else {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? storedUserId = prefs.getString('userId');
-      print('Stored userId: $storedUserId'); // Log userId for debugging.
-      
-      if (storedUserId != null) {
+    try {
+      print('Initializing UserId...');
+      if (widget.userId != null) {
         setState(() {
-          _userId = storedUserId;
+          _userId = widget.userId;
+          print('UserId from widget: $_userId');
         });
       } else {
-        _logout(); // Logout if userId is completely missing.
-        return;
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? storedUserId = prefs.getString('userId');
+        print('Stored userId from SharedPreferences: $storedUserId');
+        
+        if (storedUserId != null) {
+          setState(() {
+            _userId = storedUserId;
+          });
+        } else {
+          print('UserId not found in SharedPreferences. Logging out.');
+          _logout();
+          return;
+        }
       }
-    }
 
-    // Fetch user data once the userId is initialized.
-    await _fetchUserData();
+      // Ensure we have a valid userId before fetching data
+      if (_userId != null) {
+        await _fetchUserDataWithRetry();  // Retry mechanism for fetching data
+      } else {
+        setState(() {
+          _isLoading = false;
+          _error = "User ID could not be initialized.";
+          print('Error: User ID is null.');
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to initialize User ID. Error: $e';
+        _isLoading = false;
+      });
+      print('Error initializing User ID: $e');
+    }
   }
 
-  Future<void> _fetchUserData() async {
-    setState(() {
-      _isLoading = true;
-    });
+  /// Fetch user data with retries
+  Future<void> _fetchUserDataWithRetry() async {
+    const int maxRetries = 3;
+    while (_retryCount < maxRetries) {
+      try {
+        await _fetchUserData();
+        if (_error == null) {
+          return;  // Exit retry loop if successful
+        }
+      } catch (e) {
+        print('Retry #${_retryCount + 1} failed: $e');
+      }
+      _retryCount++;
+      await Future.delayed(Duration(seconds: 2));  // Delay before retrying
+    }
 
-    final authUserEmail = client.auth.currentUser?.email;
-    if (authUserEmail != null) {
+    setState(() {
+      _error = 'Failed to fetch user data after $maxRetries retries.';
+      _isLoading = false;
+    });
+    print('Exceeded max retries for fetching user data.');
+  }
+
+  /// Fetch the user data from Supabase
+  Future<void> _fetchUserData() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Check if Supabase current user is authenticated
+      final currentUser = client.auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('No authenticated Supabase user found.');
+      }
+
+      print('Fetching user profile data for email: ${currentUser.email}');
       final response = await client
           .from('profiles')
           .select()
-          .eq('email', authUserEmail)
+          .eq('email', currentUser.email)
           .single()
           .execute();
 
-      if (response.error == null) {
-        setState(() {
-          userData = response.data;
-          userData['userId'] = _userId; // Use the locally initialized _userId.
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _error = response.error!.message;
-          _isLoading = false;
-        });
+      if (response.error != null) {
+        throw Exception(response.error!.message);
       }
-    } else {
+
       setState(() {
-        _error = 'No authenticated user found.';
+        userData = response.data;
+        userData['userId'] = _userId;  // Include the userId from state
         _isLoading = false;
       });
+      print('User data successfully fetched: $userData');
+
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to fetch user data. Error: $e';
+        _isLoading = false;
+      });
+      print('Error fetching user data: $e');
+      throw e;  // Re-throw error to trigger retry mechanism
     }
   }
 
+  /// Handle logout and clean up stored data
   void _logout() async {
-    await client.auth.signOut();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', false);
-    await prefs.remove('userId');
-    
-    showDialog(
-      context: context,
-      barrierDismissible: false, 
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Logged Out'),
-          content: const Text('Account logged out. You will now be redirected to the Home page.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _navigateToEditProfile() async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Edit Profile'),
-          content: const Text('To edit your profile, you must use the website version of the app. You will now be redirected to the AgriLenz Website.'),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                final Uri url = Uri.parse('https://mango-stone-046047b10.5.azurestaticapps.net/login');
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(url, mode: LaunchMode.externalApplication);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Could not launch the website')),
-                  );
-                }
-              },
-              child: const Text('Proceed'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Dismiss dialog if user cancels.
-              },
-              child: const Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
+    try {
+      await client.auth.signOut();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', false);
+      await prefs.remove('userId');
+      
+      showDialog(
+        context: context,
+        barrierDismissible: false, 
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Logged Out'),
+            content: const Text('You have been logged out. Redirecting to the home page.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to log out. Error: $e';
+      });
+    }
   }
 
   @override
@@ -184,6 +209,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
+  /// Builds the profile image
   Widget _buildProfileImage() {
     return CircleAvatar(
       radius: 50,
@@ -197,6 +223,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
+  /// Builds the user info cards
   Widget _buildUserInfo() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,6 +239,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
+  /// Builds a user info tile
   Widget _buildUserInfoTile(String title, dynamic value) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -222,9 +250,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
+  /// Builds the "Edit Profile" button
   Widget _buildEditProfileButton() {
     return ElevatedButton(
-      onPressed: _navigateToEditProfile,
+      onPressed: () {
+        // Add your edit profile logic here
+      },
       child: const Text('Edit Profile'),
     );
   }
