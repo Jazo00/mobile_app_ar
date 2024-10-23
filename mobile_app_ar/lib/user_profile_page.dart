@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart'; // Import the url_launcher package
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'dart:async'; // For handling connectivity subscription
+import 'dart:async';
+import 'package:flutter/services.dart'; // For Clipboard functionality
 
 class UserProfilePage extends StatefulWidget {
   final bool isLoggedIn;
@@ -28,13 +28,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
     super.initState();
     _checkInternetAndInitializeUserId();
 
-    // Listen to connectivity changes and fetch data on reconnection
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       if (result == ConnectivityResult.none) {
         setState(() {
           _error = 'No internet connection. Data will refresh when reconnected.';
           _isLoading = false;
-          userData.clear();  // Clear partial data if loading is interrupted
+          userData.clear(); 
         });
       } else if (_error != null) {
         _checkInternetAndInitializeUserId();
@@ -44,15 +43,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   @override
   void dispose() {
-    _connectivitySubscription.cancel(); // Cancel the subscription when the widget is disposed
+    _connectivitySubscription.cancel();
     super.dispose();
   }
 
-  /// Check internet connection before initializing User ID and fetching data
   Future<void> _checkInternetAndInitializeUserId() async {
     setState(() {
       _isLoading = true;
-      _error = null;  // Clear any previous error when attempting to fetch data
+      _error = null;  
     });
 
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -66,7 +64,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
   }
 
-  /// Initialize the User ID from either widget or SharedPreferences
   Future<void> _initializeUserId() async {
     try {
       if (widget.userId != null) {
@@ -82,17 +79,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
             _userId = storedUserId;
           });
         } else {
-          _logout();
+          _logout();  
           return;
         }
       }
 
       if (_userId != null) {
-        await _fetchUserData(); // Fetch user data after initializing the User ID
+        await _fetchUserData(); 
       } else {
         setState(() {
           _isLoading = false;
-          _error = "User ID could not be initialized.";
+          _error = "User ID could not be initialized. Please log in again.";
         });
       }
     } catch (e) {
@@ -103,7 +100,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
   }
 
-  /// Fetch the user data from Supabase
   Future<void> _fetchUserData() async {
     try {
       final currentUser = client.auth.currentUser;
@@ -124,9 +120,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
       setState(() {
         userData = response.data;
-        userData['userId'] = _userId; // Include the userId from state
+        userData['userId'] = _userId; 
         _isLoading = false;
-        _error = null;  // Clear error after successful data load
+        _error = null; 
       });
 
     } catch (e) {
@@ -134,11 +130,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
         _error = 'Failed to fetch user data. Error: $e';
         _isLoading = false;
       });
-      throw e; // Re-throw error to trigger retry mechanism
     }
   }
 
-  /// Handle logout and clean up stored data
   void _logout() async {
     try {
       await client.auth.signOut();
@@ -171,19 +165,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
   }
 
-  /// Launch the URL for the web version using Uri and launchUrl
-  Future<void> _launchWebVersion() async {
-    final Uri url = Uri.parse('https://mango-stone-046047b10.5.azurestaticapps.net/');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(
-        url,
-        mode: LaunchMode.externalApplication, // Use an external browser
-      );
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -198,7 +179,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 18,
-                        color: Colors.black, // Set error message text color to black
+                        color: Colors.black, 
                       ),
                     ),
                   ),
@@ -211,11 +192,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const SizedBox.shrink(), // Leave space on the left
-                          _buildLogoutButton(), // Place logout button on the right
+                          const SizedBox.shrink(), 
+                          _buildLogoutButton(), 
                         ],
                       ),
-                      const SizedBox(height: 20), // Space below the logout button
+                      const SizedBox(height: 20), 
                       Center(child: _buildProfileImage()),
                       const SizedBox(height: 20),
                       _buildUserInfo(),
@@ -263,6 +244,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
+  /// Build the Edit Profile Button with a copy-to-clipboard functionality
   Widget _buildEditProfileButton() {
     return ElevatedButton(
       onPressed: () {
@@ -271,20 +253,36 @@ class _UserProfilePageState extends State<UserProfilePage> {
           builder: (context) {
             return AlertDialog(
               title: const Text('Edit Profile'),
-              content: const Text('You can edit your profile on our web version. Would you like to proceed?'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                      'You can edit your profile at the following link:'),
+                  const SizedBox(height: 10),
+                  const SelectableText(
+                      'https://mango-stone-046047b10.5.azurestaticapps.net/login'),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Clipboard.setData(const ClipboardData(
+                          text:
+                              'https://mango-stone-046047b10.5.azurestaticapps.net/login'));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Link copied to clipboard'),
+                        ),
+                      );
+                    },
+                    child: const Text('Copy Link'),
+                  ),
+                ],
+              ),
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context); // Close the dialog
+                    Navigator.pop(context); 
                   },
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close the dialog
-                    _launchWebVersion(); // Launch the web URL
-                  },
-                  child: const Text('Proceed'),
+                  child: const Text('Close'),
                 ),
               ],
             );
@@ -297,7 +295,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Widget _buildLogoutButton() {
     return ElevatedButton(
-      onPressed: _logout, // Calls the _logout method
+      onPressed: _logout, 
       child: const Text('Logout'),
     );
   }
