@@ -77,9 +77,9 @@ class _StandardsPageState extends State<StandardsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildInfoRow(Icons.restaurant, 'Feed', _getStringValue(item['ls_feed'])),
+                              _buildIdealInfoRow(Icons.restaurant, 'Feed', _getStringValue(item['ls_feed'])),
                               const SizedBox(height: 8),
-                              _buildInfoRow(Icons.medical_services, 'Meds', _getStringValue(item['ls_meds'])),
+                              _buildIdealInfoRow(Icons.medical_services, 'Meds', _getStringValue(item['ls_meds'])),
                               const SizedBox(height: 8),
                               _buildInfoRow(Icons.cake, 'Age (days)', _getIntValue(item['ls_age_days']).toString()),
                               const SizedBox(height: 8),
@@ -97,6 +97,31 @@ class _StandardsPageState extends State<StandardsPage> {
                     },
                   ),
       ),
+    );
+  }
+
+  Widget _buildIdealInfoRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start, // Align the icon and label to the top
+      children: [
+        Icon(icon, color: Colors.blue),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$label:',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                value,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
