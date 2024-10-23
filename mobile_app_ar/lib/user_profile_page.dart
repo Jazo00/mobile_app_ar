@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'dart:async'; // For retry mechanism
+import 'dart:async'; // For handling connectivity subscription
 
 class UserProfilePage extends StatefulWidget {
   final bool isLoggedIn;
@@ -22,20 +22,46 @@ class _UserProfilePageState extends State<UserProfilePage> {
   bool _isLoading = true;
   String? _error;
   String? _userId;
-  int _retryCount = 0; // To handle retries
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   @override
   void initState() {
     super.initState();
     _checkInternetAndInitializeUserId();
+
+    // Listen to connectivity changes and fetch data on reconnection
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      if (result == ConnectivityResult.none) {
+        // If internet is lost, show the error message and clear any partially loaded data
+        setState(() {
+          _error = 'No internet connection. Data will refresh when reconnected.';
+          _isLoading = false;
+          userData.clear();  // Clear partial data if loading is interrupted
+        });
+      } else if (_error != null) {
+        // Automatically fetch data when the connection is restored
+        _checkInternetAndInitializeUserId();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel(); // Cancel the subscription when the widget is disposed
+    super.dispose();
   }
 
   /// Check internet connection before initializing User ID and fetching data
   Future<void> _checkInternetAndInitializeUserId() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
+    setState(() {
+      _isLoading = true;
+      _error = null;  // Clear any previous error when attempting to fetch data
+    });
+
+    var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
-        _error = 'No internet connection. Please check your connection and try again.';
+        _error = 'No internet connection. Data will refresh when reconnected.';
         _isLoading = false;
       });
     } else {
@@ -65,7 +91,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       }
 
       if (_userId != null) {
-        await _fetchUserDataWithRetry(); // Retry mechanism for fetching data
+        await _fetchUserData(); // Fetch user data after initializing the User ID
       } else {
         setState(() {
           _isLoading = false;
@@ -80,35 +106,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
   }
 
-  /// Fetch user data with retries
-  Future<void> _fetchUserDataWithRetry() async {
-    const int maxRetries = 3;
-    while (_retryCount < maxRetries) {
-      try {
-        await _fetchUserData();
-        if (_error == null) {
-          return; // Exit retry loop if successful
-        }
-      } catch (e) {
-        print('Retry #${_retryCount + 1} failed: $e');
-      }
-      _retryCount++;
-      await Future.delayed(Duration(seconds: 2)); // Delay before retrying
-    }
-
-    setState(() {
-      _error = 'Failed to fetch user data after $maxRetries retries.';
-      _isLoading = false;
-    });
-  }
-
   /// Fetch the user data from Supabase
   Future<void> _fetchUserData() async {
     try {
-      setState(() {
-        _isLoading = true;
-      });
-
       final currentUser = client.auth.currentUser;
       if (currentUser == null) {
         throw Exception('No authenticated Supabase user found.');
@@ -129,6 +129,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         userData = response.data;
         userData['userId'] = _userId; // Include the userId from state
         _isLoading = false;
+        _error = null;  // Clear error after successful data load
       });
 
     } catch (e) {
@@ -176,27 +177,22 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('User Profile'),
-        actions: [
-          TextButton(
-            onPressed: _logout,
-            style: TextButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            ),
-            child: Text(
-              'Logout',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text('Error: $_error'))
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      _error!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.black, // Set error message text color to black
+                      ),
+                    ),
+                  ),
+                )
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
