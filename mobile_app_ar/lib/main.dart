@@ -3,9 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'home_page.dart';
 import 'login_and_signup_page.dart';
-import 'edit_profile_page.dart';  // Add this import
-import 'change_password_page.dart'; // Import for Change Password Page
-import 'change_email_page.dart';    // Import for Change Email Page
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,10 +31,7 @@ class MainApp extends StatelessWidget {
       routes: {
         '/': (context) => StartupScreen(),
         '/home': (context) => HomePage(),
-        '/login_signup': (context) => LoginAndSignupPage(),
-        '/edit-profile': (context) => EditProfilePage(userData: {}), // Example route for Edit Profile
-        '/change-password': (context) => ChangePasswordPage(),       // Route for Change Password
-        '/change-email': (context) => ChangeEmailPage(),             // Route for Change Email
+        '/login_signup': (context) => LoginAndSignupPage()
       },
     );
   }

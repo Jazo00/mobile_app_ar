@@ -1,5 +1,3 @@
-// File: standards_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -27,7 +25,7 @@ class _StandardsPageState extends State<StandardsPage> {
     final response = await _supabaseClient
         .from('livestock_health')
         .select()
-        .eq('ls_id_fk', widget.livestockId)  // Filter by livestock ID
+        .eq('ls_id_fk', widget.livestockId) // Filter by livestock ID
         .execute();
 
     if (response.error == null) {
@@ -90,8 +88,8 @@ class _StandardsPageState extends State<StandardsPage> {
                               _buildInfoRow(Icons.date_range, 'Age (months)', _getIntValue(item['ls_age_months']).toString()),
                               const SizedBox(height: 8),
                               _buildInfoRow(Icons.timelapse, 'Age (years)', _getIntValue(item['ls_age_years']).toString()),
-                              const SizedBox(height: 8),
-                              _buildInfoRow(Icons.eco, 'Ideal Living Conditions', _getStringValue(item['ideal_living_conditions'])),
+                              const SizedBox(height: 16), // Add some space before the ideal conditions
+                              _buildIdealLivingConditions(item['ideal_living_conditions']),
                             ],
                           ),
                         ),
@@ -116,6 +114,23 @@ class _StandardsPageState extends State<StandardsPage> {
             value,
             style: const TextStyle(fontSize: 16),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIdealLivingConditions(String? conditions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Ideal Living Conditions:',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        const SizedBox(height: 4), // Space between label and value
+        Text(
+          _getStringValue(conditions),
+          style: const TextStyle(fontSize: 16),
         ),
       ],
     );
