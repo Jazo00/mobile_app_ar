@@ -1,6 +1,5 @@
-// File: user_profile_page.dart
-
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart'; // Import the url_launcher package
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -32,14 +31,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
     // Listen to connectivity changes and fetch data on reconnection
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       if (result == ConnectivityResult.none) {
-        // If internet is lost, show the error message and clear any partially loaded data
         setState(() {
           _error = 'No internet connection. Data will refresh when reconnected.';
           _isLoading = false;
           userData.clear();  // Clear partial data if loading is interrupted
         });
       } else if (_error != null) {
-        // Automatically fetch data when the connection is restored
         _checkInternetAndInitializeUserId();
       }
     });
@@ -174,6 +171,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
   }
 
+  /// Launch the URL for the web version using Uri and launchUrl
+  Future<void> _launchWebVersion() async {
+    final Uri url = Uri.parse('https://mango-stone-046047b10.5.azurestaticapps.net/');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication, // Use an external browser
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -198,6 +208,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const SizedBox.shrink(), // Leave space on the left
+                          _buildLogoutButton(), // Place logout button on the right
+                        ],
+                      ),
+                      const SizedBox(height: 20), // Space below the logout button
                       Center(child: _buildProfileImage()),
                       const SizedBox(height: 20),
                       _buildUserInfo(),
@@ -248,9 +266,39 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget _buildEditProfileButton() {
     return ElevatedButton(
       onPressed: () {
-        // Add your edit profile logic here
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Edit Profile'),
+              content: const Text('You can edit your profile on our web version. Would you like to proceed?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                    _launchWebVersion(); // Launch the web URL
+                  },
+                  child: const Text('Proceed'),
+                ),
+              ],
+            );
+          },
+        );
       },
       child: const Text('Edit Profile'),
+    );
+  }
+
+  Widget _buildLogoutButton() {
+    return ElevatedButton(
+      onPressed: _logout, // Calls the _logout method
+      child: const Text('Logout'),
     );
   }
 }
