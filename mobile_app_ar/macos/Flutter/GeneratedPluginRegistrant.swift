@@ -5,7 +5,7 @@
 import FlutterMacOS
 import Foundation
 
-import connectivity_plus_macos
+import connectivity_plus
 import file_selector_macos
 import path_provider_foundation
 import shared_preferences_foundation

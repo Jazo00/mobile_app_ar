@@ -9,16 +9,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_svg: ^0.22.0
+  flutter_svg: ^1.1.0  # Update to the latest version if available
   supabase: ^0.2.3
   supabase_flutter: ^0.2.3
-  connectivity_plus: ^2.3.0
+  connectivity_plus: ^3.0.6  # Update for compatibility improvements
   google_fonts: ^4.0.3
-  shared_preferences: ^2.0.6
-  image_picker: ^0.8.4+3
-  uuid: ^3.0.4
+  shared_preferences: ^2.0.15  # Update to latest version
+  image_picker: ^1.0.0  # Update for compatibility
+  uuid: ^3.0.6  # Minor update
   intl: ^0.17.0 
-  url_launcher: ^6.1.10 
+  url_launcher: ^6.1.10
+  flutter_launcher_icons: ^0.11.0
 
 dev_dependencies:
   flutter_test:
@@ -31,3 +32,9 @@ flutter:
     - lib/assets/Ph_flag.svg
     - lib/assets/chicken.png
   uses-material-design: true
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "lib/assets/Agri-lenz_icon.png"  # Path to your custom icon
+  adaptive_icon_background: "#16423C"          # Background color for adaptive icon (Android)
