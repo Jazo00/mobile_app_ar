@@ -83,12 +83,12 @@ class LivestockDetailPage extends StatelessWidget {
                     await launchUrl(unityAppUri);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Could not launch AR view')),
+                      const SnackBar(content: Text('Hindi mailunsad ang AR view')),
                     );
                   }
                 },
                 child: const Text(
-                  'View in AR',
+                  'Tingnan sa AR',
                   style: TextStyle(fontSize: 16),
                 ),
               ),
@@ -124,7 +124,7 @@ class LivestockDetailPage extends StatelessWidget {
                   }
                 },
                 child: const Text(
-                  'Standards for a Healthy Life Cycle',
+                  'Pamantayan para sa Isang Malusog na Siklo ng Buhay',
                   style: TextStyle(fontSize: 16),
                 ),
               ),

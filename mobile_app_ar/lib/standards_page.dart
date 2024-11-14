@@ -54,7 +54,7 @@ class _StandardsPageState extends State<StandardsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Standards for a Healthy Life Cycle'),
+        title: const Text('Pamantayan para sa Isang Malusog na Siklo ng Buhay'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -77,17 +77,17 @@ class _StandardsPageState extends State<StandardsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildIdealInfoRow(Icons.restaurant, 'Feed', _getStringValue(item['ls_feed'])),
+                              _buildIdealInfoRow(Icons.restaurant, 'Pagkain', _getStringValue(item['ls_feed'])),
                               const SizedBox(height: 8),
-                              _buildIdealInfoRow(Icons.medical_services, 'Meds', _getStringValue(item['ls_meds'])),
+                              _buildIdealInfoRow(Icons.medical_services, 'Gamot', _getStringValue(item['ls_meds'])),
                               const SizedBox(height: 8),
-                              _buildInfoRow(Icons.cake, 'Age (days)', _getIntValue(item['ls_age_days']).toString()),
+                              _buildInfoRow(Icons.cake, 'Edad (Araw)', _getIntValue(item['ls_age_days']).toString()),
                               const SizedBox(height: 8),
-                              _buildInfoRow(Icons.calendar_today, 'Age (weeks)', _getIntValue(item['ls_age_weeks']).toString()),
+                              _buildInfoRow(Icons.calendar_today, 'Edad (Linggo)', _getIntValue(item['ls_age_weeks']).toString()),
                               const SizedBox(height: 8),
-                              _buildInfoRow(Icons.date_range, 'Age (months)', _getIntValue(item['ls_age_months']).toString()),
+                              _buildInfoRow(Icons.date_range, 'Edad (Buwan)', _getIntValue(item['ls_age_months']).toString()),
                               const SizedBox(height: 8),
-                              _buildInfoRow(Icons.timelapse, 'Age (years)', _getIntValue(item['ls_age_years']).toString()),
+                              _buildInfoRow(Icons.timelapse, 'Edad (Taon)', _getIntValue(item['ls_age_years']).toString()),
                               const SizedBox(height: 16), // Add some space before the ideal conditions
                               _buildIdealLivingConditions(item['ideal_living_conditions']),
                             ],
@@ -149,7 +149,7 @@ class _StandardsPageState extends State<StandardsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Ideal Living Conditions:',
+          'Ideal na Kondisyon ng Pamumuhay:',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(height: 4), // Space between label and value

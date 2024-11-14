@@ -223,13 +223,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildUserInfoTile('First Name', userData['first_name']),
-        _buildUserInfoTile('Last Name', userData['last_name']),
-        _buildUserInfoTile('Middle Initial', userData['middle_initial']),
+        _buildUserInfoTile('Unang Pangalan', userData['first_name']),
+        _buildUserInfoTile('Apelyido', userData['last_name']),
+        _buildUserInfoTile('Panggitnang Pangalan', userData['middle_initial']),
         _buildUserInfoTile('Email', userData['email']),
-        _buildUserInfoTile('Cell Number', userData['cell_number']),
-        _buildUserInfoTile('Age', userData['age']),
-        _buildUserInfoTile('Sex', userData['sex']),
+        _buildUserInfoTile('Cellphone Number', userData['cell_number']),
+        _buildUserInfoTile('Edad', userData['age']),
+        _buildUserInfoTile('Kasarian', userData['sex']),
       ],
     );
   }
@@ -252,12 +252,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text('Edit Profile'),
+              title: const Text('Iedit ang profile'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                      'You can edit your profile at the following link:'),
+                      ' Kopyahin at ilagay ang link na ito sa inyong browser \n Maaari mong i-edit ang iyong profile sa susunod na link:'),
                   const SizedBox(height: 10),
                   const SelectableText(
                       'https://mango-stone-046047b10.5.azurestaticapps.net/login'),
@@ -269,11 +269,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
                               'https://mango-stone-046047b10.5.azurestaticapps.net/login'));
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Link copied to clipboard'),
+                          content: Text('Nakopya ang link'),
                         ),
                       );
                     },
-                    child: const Text('Copy Link'),
+                    child: const Text('Kopyahin ang link'),
                   ),
                 ],
               ),
@@ -282,21 +282,21 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   onPressed: () {
                     Navigator.pop(context); 
                   },
-                  child: const Text('Close'),
+                  child: const Text('Iclose'),
                 ),
               ],
             );
           },
         );
       },
-      child: const Text('Edit Profile'),
+      child: const Text('Iedit Profile'),
     );
   }
 
   Widget _buildLogoutButton() {
     return ElevatedButton(
       onPressed: _logout, 
-      child: const Text('Logout'),
+      child: const Text('Mag-Logout'),
     );
   }
 }
