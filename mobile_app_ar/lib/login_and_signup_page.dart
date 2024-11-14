@@ -31,7 +31,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
   final TextEditingController _dateOfBirthController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-  String _selectedSex = 'Male';
+  String _selectedSex = 'Lalaki';
   DateTime? _selectedDateOfBirth;
 
   @override
@@ -72,14 +72,14 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
     if (_formKey.currentState!.validate()) {
       if (!_termsAccepted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You must accept the Terms and Conditions')),
+          const SnackBar(content: Text('Kailangan mong tanggapin ang Mga Termino at Kundisyon.')),
         );
         return;
       }
 
       if (_selectedDateOfBirth == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select your date of birth')),
+          const SnackBar(content: Text('Pumili ng iyong petsa ng kapanganakan.')),
         );
         return;
       }
@@ -87,7 +87,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
       final int age = _calculateAge(_selectedDateOfBirth!);
       if (age < 18) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You must be 18 or above to create an account')),
+          const SnackBar(content: Text('Kailangan mong maging 18 taong gulang o higit pa upang makapag-registrar.')),
         );
         return;
       }
@@ -118,9 +118,9 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
             barrierDismissible: false,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text('Sign-up Successful'),
+                title: const Text('Matagumpay ang Pagpaparehistro'),
                 content: const Text(
-                  'A verification email has been sent. You will be redirected to the home screen shortly.',
+                  'Isinagawa na ang email ng beripikasyon. Iri-redirect ka sa home screen sa lalong madaling panahon.',
                 ),
                 actions: [
                   TextButton(
@@ -163,8 +163,8 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
           barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Login Successful'),
-              content: const Text('You have successfully logged in. Redirecting to the home menu...'),
+              title: const Text('Nakapag-login!'),
+              content: const Text('Matagumpay kang nakapag-login. Iri-redirect ka sa pangunahing menu...'),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -182,7 +182,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid login credentials. Please try again.')),
+          SnackBar(content: Text('Mali ang mga kredensyal sa pag-login. Paki-try ulit.')),
         );
       }
     }
@@ -194,22 +194,22 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Forgot Password'),
+          title: const Text('Nalimutan ang Password?'),
           content: const Text(
-              'You will be redirected to the password reset page. Do you want to proceed?'),
+              'aw ay ire-redirect sa pahina ng pag-reset ng password. Nais mo bang magpatuloy?'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text('Cancel'),
+              child: const Text('Icancel'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
                 _launchForgotPasswordUrl(); // Redirect to the external URL
               },
-              child: const Text('Proceed'),
+              child: const Text('Ituloy'),
             ),
           ],
         );
@@ -264,7 +264,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(isLogin ? 'Login' : 'Sign Up'),
+        title: Text(isLogin ? 'Mag-Login' : 'Mag-Sign Up'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -275,10 +275,10 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
               if (!isLogin) ...[
                 TextFormField(
                   controller: _firstNameController,
-                  decoration: _inputDecoration('First Name'),
+                  decoration: _inputDecoration('Unang pangalan'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your first name';
+                      return 'Paki-enter ang iyong unang pangalan';
                     }
                     return null;
                   },
@@ -286,10 +286,10 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lastNameController,
-                  decoration: _inputDecoration('Last Name'),
+                  decoration: _inputDecoration('Apelyido'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your last name';
+                      return 'Paki-enter ang iyong apelyido';
                     }
                     return null;
                   },
@@ -298,7 +298,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 TextFormField(
                   controller: _middleInitialController,
                   decoration: InputDecoration(
-                    labelText: 'Middle Initial',
+                    labelText: 'Panggitnang Inisyal',
                     counterText: '',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
@@ -318,7 +318,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your middle initial';
+                      return 'Paki-enter ang iyong panggitnang inisyals';
                     }
                     return null;
                   },
@@ -328,7 +328,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   controller: _cellNumberController,
                   keyboardType: TextInputType.number,
                   decoration: _inputDecoration(
-                    'Cell Number',
+                    'Cellphone Number',
                     prefixIcon: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -356,7 +356,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   ],
                   validator: (value) {
                     if (value == null || value.length != 10) {
-                      return 'Please enter a valid cell number (Philippine number only)';
+                      return 'Paki-enter ang isang wastong numero ng cellphone (Philippines number lamang)';
                     }
                     return null;
                   },
@@ -366,10 +366,10 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   controller: _dateOfBirthController,
                   readOnly: true,
                   onTap: () => _selectDate(context),
-                  decoration: _inputDecoration('Date of Birth', suffixIcon: const Icon(Icons.calendar_today)),
+                  decoration: _inputDecoration('Petsa ng Kapanganakan', suffixIcon: const Icon(Icons.calendar_today)),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your date of birth';
+                      return 'Paki-enter ang iyong petsa ng kapanganakan';
                     }
                     return null;
                   },
@@ -377,8 +377,8 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: _selectedSex,
-                  decoration: _inputDecoration('Sex'),
-                  items: ['Male', 'Female'].map((String value) {
+                  decoration: _inputDecoration('Kasarian'),
+                  items: ['Lalaki', 'Babae'].map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
@@ -397,7 +397,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 decoration: _inputDecoration('Email'),
                 validator: (value) {
                   if (value == null || !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                    return 'Please enter a valid email';
+                    return 'Paki-enter ang isang wastong email';
                   }
                   return null;
                 },
@@ -422,11 +422,11 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 validator: (value) {
                   if (isLogin) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Paki-enter ang iyong password';
                     }
                   } else {
                     if (value == null || !RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$').hasMatch(value)) {
-                      return 'Password must be at least 8 characters long, include an \n uppercase letter, a number, and a special character';
+                      return 'Ang password ay dapat na may hindi bababa sa 8 na karakter, maglaman ng isang malaking titik, isang numero, at isang espesyal na karakter';
                     }
                   }
                   return null;
@@ -437,7 +437,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 TextFormField(
                   controller: _confirmPasswordController,
                   decoration: _inputDecoration(
-                    'Confirm Password',
+                    'Kumpirmahin ang Password',
                     suffixIcon: IconButton(
                       icon: Icon(
                         _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
@@ -452,7 +452,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                   obscureText: !_confirmPasswordVisible,
                   validator: (value) {
                     if (value != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return 'Hindi magkatugma ang mga password';
                     }
                     return null;
                   },
@@ -475,24 +475,25 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                             context: context,
                             builder: (context) {
                               return AlertDialog(
-                                title: const Text('Terms and Conditions'),
+                                title: const Text('Tinatanggap ko ang Mga Tuntunin at Kundisyon'),
                                 content: SingleChildScrollView(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text('We are collecting your personal data for the purpose of registration only. By proceeding, you agree to our data privacy terms.'),
+                                      const Text('Kinokolekta namin ang iyong personal na impormasyon para lamang sa layunin ng pagrerehistro. Sa pagpapatuloy, sumasang-ayon ka sa aming mga tuntunin ng privacy ng data.'),
                                       const SizedBox(height: 10),
-                                      const Text('1. Data Collection:', style: TextStyle(fontWeight: FontWeight.bold)),
-                                      const Text('We collect your name, email, birthday, and contact information.'),
+                                      const Text('1. Pagkolekta ng Data:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      const Text('Kinokolekta namin ang iyong pangalan, email, kaarawan, at impormasyon sa kontak.'),
                                       const SizedBox(height: 10),
-                                      const Text('2. Data Usage:', style: TextStyle(fontWeight: FontWeight.bold)),
-                                      const Text('Your data is used for account creation, security, and service updates.'),
+                                      const Text('2. Paggamit ng Data:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      const Text('Ang iyong data ay ginagamit para sa paggawa ng account, seguridad, at mga update sa serbisyo.'),
                                       const SizedBox(height: 10),
-                                      const Text('3. Data Protection:', style: TextStyle(fontWeight: FontWeight.bold)),
-                                      const Text('We employ encryption and security measures to safeguard your data.'),
+                                      const Text('3. Proteksyon ng Data:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      const Text('Kami ay gumagamit ng encryption at mga hakbang sa seguridad upang maprotektahan ang iyong data.'),
                                       const SizedBox(height: 10),
-                                      const Text('4. Retention & Rights:', style: TextStyle(fontWeight: FontWeight.bold)),
-                                      const Text('You can modify or delete your data, and request data deletion when no longer needed.'),
+                                      const Text('4. Pag-iingat at Karapatan:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      const Text('Maaari mong baguhin o tanggalin ang iyong data, at mag-request ng pagtanggal ng data kapag hindi na ito kailangan.')
+                                      ,
                                     ],
                                   ),
                                 ),
@@ -501,7 +502,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                     },
-                                    child: const Text('Close'),
+                                    child: const Text('Iclose'),
                                   ),
                                 ],
                               );
@@ -509,7 +510,7 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                           );
                         },
                         child: const Text(
-                          'I accept the Terms and Conditions',
+                          'Tinatanggap ko ang Mga Tuntunin at Kondisyon',
                           style: TextStyle(decoration: TextDecoration.underline),
                         ),
                       ),
@@ -518,23 +519,23 @@ class _LoginAndSignupPageState extends State<LoginAndSignupPage> {
                 ),
                 ElevatedButton(
                   onPressed: _signUp,
-                  child: const Text('Sign Up'),
+                  child: const Text('Mag-Sign Up'),
                 ),
               ],
               if (isLogin) ...[
                 ElevatedButton(
                   onPressed: _login,
-                  child: const Text('Login'),
+                  child: const Text('Mag-Login'),
                 ),
               ],
               TextButton(
                 onPressed: toggleFormType,
-                child: Text(isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'),
+                child: Text(isLogin ? "Wala pang account? Mag-sign Up" : 'May account na? Mag-login'),
               ),
               if (isLogin)
                 TextButton(
                   onPressed: _forgotPassword,
-                  child: const Text('Forgot Password?'),
+                  child: const Text('Nalimutan ang password?'),
                 )
             ],
           ),

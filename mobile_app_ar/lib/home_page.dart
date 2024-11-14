@@ -60,11 +60,11 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Login Required'),
-          content: const Text('Please login or create an account to access this feature.'),
+          title: const Text('Kailangan mag-log-in'),
+          content: const Text('Mangyaring mag-login o lumikha ng account upang magamit ang tampok na ito.'),
           actions: <Widget>[
             TextButton(
-              child: const Text('Login'),
+              child: const Text('Mag-Login'),
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.push(
@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text('Icancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -187,7 +187,7 @@ class _HomePageState extends State<HomePage> {
                 });
               });
             },
-            child: const Text('Login'),
+            child: const Text('Mag-Login'),
           ),
         ],
       ),
@@ -221,29 +221,29 @@ class HomePageContent extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             const Text(
-              'What is Augmented Reality?',
+              'Ano ang Augmented Reality?',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             const Text(
-              'Augmented Reality (AR) is an interactive experience where digital information is overlaid onto the real world. AR can be experienced through various devices, including smartphones, and tablets.',
+              'Ang Augmented Reality (AR) ay isang interaktibong karanasan kung saan ang digital na impormasyon ay idinadagdag sa totoong mundo. Maaaring maranasan ang AR gamit ang iba’t ibang mga device, tulad ng mga smartphone at tablet.',
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 20),
             const Text(
-              'About Our System',
+              'Tungkol sa Aming Sistema',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             const Text(
-              'The AR capability enhances user experience by overlaying digital information on the real world, providing informative content about livestock in an interactive and engaging way. This feature could include information about livestock breeds, care, feeding, and other relevant topics. Our system combines augmented reality (AR) technology with an information system for livestock Users can view informative and specific livestock information in AR. ',
+              'Pinapahusay ng kakayahang AR ang karanasan ng gumagamit sa pamamagitan ng pagdaragdag ng digital na impormasyon sa totoong mundo, na nagbibigay ng makabuluhang impormasyon tungkol sa mga hayop sa isang nakakaengganyong paraan. Maaaring kabilang sa tampok na ito ang impormasyon tungkol sa mga lahi ng hayop, pangangalaga, pagpapakain, at iba pang mga paksa. Pinagsasama ng aming sistema ang teknolohiyang AR sa isang sistema ng impormasyon para sa mga hayop. Maaaring makita ng mga gumagamit ang tiyak at detalyadong impormasyon ng hayop sa AR. ',
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 20),
             if (!isLoggedIn)
               ElevatedButton(
                 onPressed: onLogin,
-                child: const Text('Login'),
+                child: const Text('Mag-Login'),
               ),
           ],
         ),
