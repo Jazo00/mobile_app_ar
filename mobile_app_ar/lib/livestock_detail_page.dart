@@ -124,7 +124,7 @@ class LivestockDetailPage extends StatelessWidget {
                   }
                 },
                 child: const Text(
-                  'Pamantayan para sa Isang Malusog na Siklo ng Buhay',
+                  'Pamantayan para sa Isang Malusog na Siklo ng Buhay ng Livestock',
                   style: TextStyle(fontSize: 16),
                 ),
               ),

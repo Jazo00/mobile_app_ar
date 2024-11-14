@@ -53,7 +53,7 @@ class StartupScreen extends StatelessWidget {
               Image.asset('lib/assets/logo_final.png'),
               const SizedBox(height: 5),
               Text(
-                'Welcome to Agri-Lenz',
+                'Maligayang pagdating sa Agri-Lenz',
                 style: GoogleFonts.cardo(
                   textStyle: const TextStyle(
                     fontSize: 25,
@@ -64,7 +64,7 @@ class StartupScreen extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               Text(
-                'Augmenting Agriculture with insight',
+                'Pinapalakas ang Agrikultura gamit ang mga kaalaman',
                 style: GoogleFonts.cardo(
                   textStyle: const TextStyle(
                     fontSize: 18,
@@ -85,7 +85,7 @@ class StartupScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.pushNamed(context, '/home');
                 },
-                child: const Text('Let\'s get started!'),
+                child: const Text('Magsimula na tayo!'),
               ),
             ],
           ),

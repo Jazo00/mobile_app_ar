@@ -145,8 +145,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Logged Out'),
-            content: const Text('You have been logged out. Redirecting to the home page.'),
+            title: const Text('Na-Log Out'),
+            content: const Text('Ikaw ay naka-log out na. Nililipat ka sa pangunahing pahina'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -229,7 +229,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         _buildUserInfoTile('Email', userData['email']),
         _buildUserInfoTile('Cellphone Number', userData['cell_number']),
         _buildUserInfoTile('Edad', userData['age']),
-        _buildUserInfoTile('Kasarian', userData['sex']),
+        _buildUserInfoTile('Kasarian', _getSexLabel(userData['sex'])),
       ],
     );
   }
@@ -298,5 +298,20 @@ class _UserProfilePageState extends State<UserProfilePage> {
       onPressed: _logout, 
       child: const Text('Mag-Logout'),
     );
+  }
+
+  String _getSexLabel(String? sex) {
+    if (sex == null) {
+      return 'N/A'; // Or return a default message if sex is null
+    }
+
+    switch (sex.toLowerCase()) {
+      case 'male':
+        return 'Lalaki';
+      case 'female':
+        return 'Babae';
+      default:
+        return 'N/A'; // If the value is neither 'male' nor 'female'
+    }
   }
 }

@@ -54,7 +54,7 @@ class _StandardsPageState extends State<StandardsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pamantayan para sa Isang Malusog na Siklo ng Buhay'),
+        title: const Text('Pamantayan para sa Isang Malusog na Siklo ng Buhay ng Livestock'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
