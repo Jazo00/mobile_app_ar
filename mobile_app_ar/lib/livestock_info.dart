@@ -30,7 +30,7 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
       if (result == ConnectivityResult.none) {
         // If internet is lost while loading, show the error immediately
         setState(() {
-          _error = 'No internet connection. Data will refresh when reconnected.';
+          _error = 'Walang koneksyon sa internet. Magre-refresh ang data kapag nakakonekta muli.';
           _isLoading = false;
           _livestockList.clear();  // Clear partial data if loading interrupted
         });
@@ -56,7 +56,7 @@ class _LivestockInfoPageState extends State<LivestockInfoPage> {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
-        _error = 'No internet connection. Data will refresh when reconnected.';
+        _error = 'Walang koneksyon sa internet. Magre-refresh ang data kapag nakakonekta muli.';
         _isLoading = false;
       });
     } else {

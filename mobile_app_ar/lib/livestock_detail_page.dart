@@ -61,7 +61,7 @@ class LivestockDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                livestock['livestock_information'] ?? 'No information available',
+                livestock['livestock_information'] ?? 'Walang pang impormasyon',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),

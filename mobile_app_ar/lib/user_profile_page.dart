@@ -31,7 +31,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       if (result == ConnectivityResult.none) {
         setState(() {
-          _error = 'No internet connection. Data will refresh when reconnected.';
+          _error = '';
           _isLoading = false;
           userData.clear(); 
         });
@@ -56,7 +56,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
       setState(() {
-        _error = 'No internet connection. Data will refresh when reconnected.';
+        _error = 'Walang koneksyon sa internet. Magre-refresh ang data kapag nakakonekta muli.';
         _isLoading = false;
       });
     } else {
